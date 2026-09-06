@@ -1,0 +1,1890 @@
+<title>Found a Dead Animal?</title>
+<style>
+/* style.css — civic-utility look: high contrast, generous type, no chrome
+   that gets between a worried person and a phone number. */
+
+:root {
+  --bg: #f7f5f0;
+  --panel: #ffffff;
+  --ink: #1b1d21;
+  --ink-2: #565a63;
+  --ink-3: #85898f;
+  --line: #e2ddd2;
+  --accent: #1f5f4e;
+  --accent-ink: #ffffff;
+  --alarm: #a8321f;
+  --alarm-bg: #fdf0ec;
+  --warn: #8a5a12;
+  --warn-bg: #fdf5e6;
+  --calm-bg: #eef3f0;
+  --radius: 14px;
+  --shadow: 0 1px 2px rgba(24, 20, 12, .05), 0 8px 24px -14px rgba(24, 20, 12, .28);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14161a;
+    --panel: #1c1f25;
+    --ink: #eef0f3;
+    --ink-2: #a9afb9;
+    --ink-3: #7d838d;
+    --line: #2c3039;
+    --accent: #57b394;
+    --accent-ink: #0e1a16;
+    --alarm: #ff8a70;
+    --alarm-bg: #2a1a16;
+    --warn: #e3b35f;
+    --warn-bg: #2a2216;
+    --calm-bg: #1e2622;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px -14px rgba(0, 0, 0, .8);
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { width: min(1080px, 92vw); margin-inline: auto; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- masthead ---------- */
+
+.masthead {
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  padding: clamp(2rem, 6vw, 3.6rem) 0 clamp(1.6rem, 4vw, 2.4rem);
+}
+.eyebrow {
+  margin: 0 0 .6rem;
+  font-size: .74rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--accent);
+}
+h1 {
+  margin: 0 0 .7rem;
+  font-size: clamp(1.9rem, 5.2vw, 3rem);
+  line-height: 1.12;
+  letter-spacing: -.02em;
+  max-width: 20ch;
+}
+h1 span { color: var(--ink-2); display: block; font-weight: 600; }
+.lede { margin: 0 0 1.4rem; max-width: 62ch; color: var(--ink-2); font-size: 1.06rem; }
+
+.safety {
+  background: var(--alarm-bg);
+  border: 1px solid color-mix(in srgb, var(--alarm) 30%, transparent);
+  border-left: 4px solid var(--alarm);
+  border-radius: 10px;
+  padding: .85rem 1.05rem;
+  max-width: 68ch;
+  font-size: .95rem;
+}
+.safety strong { color: var(--alarm); }
+.safety a { color: var(--alarm); font-weight: 700; }
+
+/* ---------- controls ---------- */
+
+.controls { padding: clamp(1.6rem, 4vw, 2.4rem) 0 1rem; }
+
+.search input {
+  width: 100%;
+  padding: .85rem 1rem;
+  font: inherit;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+.search input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.filters { display: flex; flex-wrap: wrap; gap: .5rem; margin: .9rem 0 .5rem; }
+.chip {
+  font: inherit; font-size: .88rem;
+  padding: .42rem .8rem;
+  background: var(--panel);
+  color: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex; align-items: baseline; gap: .4rem;
+}
+.chip em { font-style: normal; color: var(--ink-3); font-size: .8em; }
+.chip:hover { border-color: var(--ink-3); }
+.chip.is-on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.chip.is-on em { color: color-mix(in srgb, var(--accent-ink) 72%, transparent); }
+
+.count { margin: .3rem 0 0; color: var(--ink-3); font-size: .85rem; }
+
+/* ---------- grid ---------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(212px, 1fr));
+  gap: 1rem;
+  padding-bottom: 1rem;
+}
+
+.card {
+  display: flex; flex-direction: column;
+  text-align: left;
+  font: inherit; color: inherit;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0; overflow: hidden;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: transform .14s ease, border-color .14s ease;
+}
+.card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.art {
+  position: relative;
+  display: block;
+  aspect-ratio: 5 / 3;
+  /* The illustration plate stays light in both themes: dark-coated animals
+     (skunk, crow, bat) disappear against a dark card, and real photographs
+     dropped into images/ will sit on the same plate. */
+  background: linear-gradient(175deg, #eef1ee, #f8f7f4);
+  border-bottom: 1px solid var(--line);
+  color: #1b1d21;
+}
+.art svg { width: 100%; height: 100%; display: block; }
+.art .photo {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+.art .photo.is-on { opacity: 1; }
+
+.card-body { padding: .8rem .9rem 1rem; display: grid; gap: .28rem; }
+.card-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.card-head strong { font-size: 1.02rem; letter-spacing: -.01em; }
+.size {
+  font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 700;
+  padding: .16rem .45rem; border-radius: 5px;
+  background: var(--calm-bg); color: var(--ink-2);
+}
+.aka { color: var(--ink-3); font-size: .82rem; }
+.mark { color: var(--ink-2); font-size: .88rem; line-height: 1.45; }
+
+.empty { color: var(--ink-2); background: var(--panel); border: 1px dashed var(--line); border-radius: var(--radius); padding: 1.1rem; }
+.linkish { font: inherit; color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
+
+/* ---------- saved numbers ---------- */
+
+.numbers, .faq {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: clamp(1.2rem, 3vw, 1.8rem);
+  margin: 2rem 0;
+}
+.numbers h2, .faq h2 { margin: 0 0 .4rem; font-size: 1.25rem; letter-spacing: -.01em; }
+.numbers > p { margin: 0 0 1.1rem; color: var(--ink-2); max-width: 62ch; }
+.numgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: .8rem; }
+.numgrid label { display: grid; gap: .3rem; font-size: .82rem; font-weight: 600; color: var(--ink-2); }
+.numgrid input {
+  font: inherit; padding: .6rem .7rem;
+  color: var(--ink); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 9px;
+}
+.numgrid input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.hint { margin: 1rem 0 0; color: var(--ink-3); font-size: .87rem; }
+.hint a, .faq a { color: var(--accent); }
+
+/* ---------- faq ---------- */
+
+.faq details { border-top: 1px solid var(--line); padding: .2rem 0; }
+.faq details:first-of-type { margin-top: .8rem; }
+.faq summary { cursor: pointer; padding: .75rem 0; font-weight: 600; }
+.faq summary::marker { color: var(--accent); }
+.faq p { margin: 0 0 .9rem; color: var(--ink-2); max-width: 68ch; }
+
+footer p { color: var(--ink-3); font-size: .84rem; max-width: 72ch; padding-bottom: 3rem; }
+
+/* ---------- sheet ---------- */
+
+dialog {
+  width: min(920px, 94vw);
+  max-height: 92vh;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: 0 30px 70px -30px rgba(0, 0, 0, .55);
+}
+dialog::backdrop { background: rgba(16, 14, 10, .55); backdrop-filter: blur(2px); }
+.sheet-inner { padding: clamp(1.1rem, 3vw, 1.9rem); position: relative; }
+
+.close {
+  position: absolute; top: .7rem; right: .7rem;
+  width: 34px; height: 34px; line-height: 1;
+  font-size: 1.4rem; color: var(--ink-2);
+  background: var(--bg); border: 1px solid var(--line); border-radius: 9px;
+  cursor: pointer;
+}
+.close:hover { color: var(--ink); }
+
+.sheet-top { display: grid; grid-template-columns: minmax(0, 230px) 1fr; gap: 1.2rem; align-items: start; }
+.art-lg { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.sheet-top h2 { margin: 0 0 .2rem; font-size: 1.6rem; letter-spacing: -.02em; padding-right: 2.4rem; }
+.sheet-top .aka { display: block; margin-bottom: .8rem; }
+
+.risk { margin: 0; font-size: .92rem; padding: .7rem .85rem; border-radius: 10px; }
+.risk strong { display: block; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; margin-bottom: .2rem; }
+.risk-high { background: var(--alarm-bg); color: var(--ink); border: 1px solid color-mix(in srgb, var(--alarm) 28%, transparent); }
+.risk-high strong { color: var(--alarm); }
+.risk-medium { background: var(--warn-bg); border: 1px solid color-mix(in srgb, var(--warn) 28%, transparent); }
+.risk-medium strong { color: var(--warn); }
+.risk-low { background: var(--calm-bg); border: 1px solid var(--line); }
+.risk-low strong { color: var(--accent); }
+
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; margin-top: 1.6rem; }
+.cols h3 { font-size: .78rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-3); margin: 0 0 .7rem; }
+.cols section + section { min-width: 0; }
+
+.marks { margin: 0 0 1rem; padding: 0; list-style: none; display: grid; gap: .55rem; }
+.marks li { padding-left: 1.35rem; position: relative; color: var(--ink-2); }
+.marks li::before {
+  content: ""; position: absolute; left: 0; top: .55em;
+  width: 8px; height: 8px; border-radius: 2px; background: var(--accent);
+}
+.marks li:first-child { color: var(--ink); font-weight: 600; }
+.confuse { font-size: .88rem; color: var(--ink-2); background: var(--bg); border-radius: 9px; padding: .7rem .8rem; margin: 0; }
+
+.locs { display: grid; gap: .45rem; margin-bottom: 1.1rem; }
+.loc {
+  font: inherit; text-align: left; cursor: pointer;
+  display: grid; gap: .1rem;
+  padding: .55rem .75rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 10px;
+}
+.loc em { font-style: normal; font-size: .78rem; color: var(--ink-3); }
+.loc strong { font-size: .92rem; font-weight: 600; }
+.loc:hover { border-color: var(--ink-3); }
+.loc.is-on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.loc.is-on em { color: color-mix(in srgb, var(--accent-ink) 78%, transparent); }
+
+.plan { border: 1px solid var(--line); border-radius: 12px; padding: 1rem; background: var(--bg); margin-bottom: 1.4rem; }
+.plan .tag { margin: 0 0 .4rem; font-size: .68rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+.urgency-urgent { border-color: color-mix(in srgb, var(--alarm) 40%, transparent); background: var(--alarm-bg); }
+.urgency-urgent .tag { color: var(--alarm); }
+.urgency-prompt { border-color: color-mix(in srgb, var(--warn) 38%, transparent); background: var(--warn-bg); }
+.urgency-prompt .tag { color: var(--warn); }
+.plan h4 { margin: 0 0 .35rem; font-size: 1.08rem; letter-spacing: -.01em; }
+.why { margin: 0 0 .9rem; font-size: .88rem; color: var(--ink-2); }
+
+.dial {
+  display: block; text-align: center;
+  padding: .8rem 1rem;
+  background: var(--accent); color: var(--accent-ink);
+  font-weight: 700; text-decoration: none;
+  border-radius: 10px;
+}
+.dial:hover { filter: brightness(1.07); }
+.dial-note { margin: .55rem 0 0; font-size: .78rem; color: var(--ink-3); }
+.dial-note a, .plan .why a { color: var(--accent); font-weight: 600; }
+
+.say { margin: 0; padding-left: 1.2rem; display: grid; gap: .4rem; color: var(--ink-2); font-size: .92rem; }
+.say li::marker { color: var(--accent); font-weight: 700; }
+
+.bottom {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem;
+  margin-top: 1.6rem; padding-top: 1.3rem;
+  border-top: 1px solid var(--line);
+}
+.bottom h3 { font-size: .78rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-3); margin: 0 0 .7rem; }
+.bottom .emergency h3 { color: var(--alarm); }
+.emergency ul { margin: 0 0 1rem; padding-left: 1.2rem; color: var(--ink-2); font-size: .9rem; display: grid; gap: .3rem; }
+.dial-911 { background: var(--alarm); color: #fff; max-width: 260px; }
+
+@media (max-width: 720px) {
+  .sheet-top { grid-template-columns: 1fr; }
+  .art-lg { max-width: 280px; }
+  .cols, .bottom { grid-template-columns: 1fr; gap: 1.4rem; }
+  dialog { width: 100vw; max-width: 100vw; max-height: 100vh; height: 100%; border-radius: 0; border: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+
+/* ---------- jurisdiction selector ---------- */
+
+.juris {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  margin-top: clamp(1.6rem, 4vw, 2.4rem);
+  box-shadow: var(--shadow);
+}
+.juris-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: .8rem; }
+.juris-row label { display: grid; gap: .3rem; font-size: .78rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-3); }
+.juris-row select {
+  font: inherit; font-size: .98rem; font-weight: 400; text-transform: none; letter-spacing: 0;
+  padding: .6rem .7rem;
+  color: var(--ink); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 9px;
+}
+.juris-row select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.juris-note { margin: .8rem 0 0; font-size: .86rem; color: var(--ink-2); }
+.juris-note a { color: var(--accent); }
+
+@media (max-width: 560px) { .juris-row { grid-template-columns: 1fr; } }
+
+/* ---------- secondary contacts ---------- */
+
+.also { list-style: none; margin: 1rem 0 0; padding: .85rem 0 0; border-top: 1px solid var(--line); display: grid; gap: .6rem; }
+.also-head { font-size: .68rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+.also li { font-size: .88rem; display: grid; gap: .1rem; }
+.also li strong { font-weight: 600; }
+.also li a { color: var(--accent); font-weight: 700; }
+.also li em { font-style: normal; color: var(--ink-3); font-size: .82rem; }
+
+.dial-emergency { background: var(--alarm); color: #fff; max-width: 260px; }
+
+/* ---------- guidance blocks ---------- */
+
+.guidance {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: clamp(1.2rem, 3vw, 1.8rem);
+  margin: 2rem 0;
+}
+.guidance h2 { margin: 0 0 .4rem; font-size: 1.25rem; letter-spacing: -.01em; }
+.guidance-lede { margin: 0 0 1.4rem; color: var(--ink-2); max-width: 68ch; }
+.guidance-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(255px, 1fr)); gap: 1.2rem; }
+
+.block h3 {
+  margin: 0 0 .6rem; font-size: .78rem; text-transform: uppercase;
+  letter-spacing: .1em; color: var(--ink-3);
+}
+.block ul { margin: 0; padding: 0; list-style: none; display: grid; gap: .5rem; }
+.block li {
+  position: relative; padding-left: 1.3rem;
+  font-size: .9rem; line-height: 1.5; color: var(--ink-2);
+}
+.block li::before {
+  content: ""; position: absolute; left: 0; top: .55em;
+  width: 7px; height: 7px; border-radius: 2px; background: var(--accent);
+}
+
+/* the bat protocol and the do-not-touch list are the ones that matter most */
+.guidance-grid .block:nth-child(2) li::before,
+.guidance-grid .block:nth-child(3) li::before { background: var(--alarm); }
+
+.cautions {
+  margin-top: 1.6rem; padding-top: 1.3rem;
+  border-top: 1px solid var(--line);
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(255px, 1fr)); gap: 1.4rem;
+}
+.cautions .block:not(:first-child) li::before { background: var(--alarm); }
+
+</style>
+<script>window.DAR_PHOTOS = false;</script>
+
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">Public reporting guide</p>
+    <h1>Found a dead animal? <span>Identify it, then call it in.</span></h1>
+    <p class="lede">
+      Who collects the carcass depends on what it is and where it is lying.
+      Find your animal below, tell us where you found it, and this page will
+      tell you which agency to ring and exactly what they will ask you.
+    </p>
+    <div class="safety">
+      <strong>Before anything else:</strong> do not touch it, and keep pets and
+      children away. If it is blocking traffic, someone has been bitten, or the
+      animal is still moving, stop reading and call
+      <a href="tel:911" id="emergency-link">911</a>.
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="juris" aria-label="Where are you?">
+    <div class="juris-row">
+      <label for="country">Country
+        <select id="country"></select>
+      </label>
+      <label for="region"><span id="region-label">State</span>
+        <select id="region"></select>
+      </label>
+    </div>
+    <p class="juris-note" id="juris-note"></p>
+  </section>
+
+  <section class="controls" aria-label="Find your animal">
+    <div class="search">
+      <label for="q" class="sr-only">Search animals</label>
+      <input id="q" type="search" placeholder="Search — try “bushy tail”, “mask”, “bare tail”, “black and white”" autocomplete="off">
+    </div>
+    <div class="filters" role="group" aria-label="Filter by size">
+      <button class="chip is-on" data-size="all">All sizes</button>
+      <button class="chip" data-size="small">Small <em>squirrel or under</em></button>
+      <button class="chip" data-size="medium">Medium <em>cat to raccoon</em></button>
+      <button class="chip" data-size="large">Large <em>dog to deer</em></button>
+    </div>
+    <p class="count" id="count" aria-live="polite"></p>
+  </section>
+
+  <section class="grid" id="grid" aria-label="Animals"></section>
+
+  <p class="empty" id="empty" hidden>
+    No match. Try a plainer description — a colour, the tail, or the ears —
+    or <button class="linkish" data-clear>clear the search</button>.
+    If you truly cannot tell, pick the closest animal; the phone line can
+    identify it from your description.
+  </p>
+
+  <section class="numbers" id="numbers">
+    <h2>Save your local numbers</h2>
+    <p>
+      The numbers below are filled in from your country and region, but the
+      municipal line is always local to you. Anything you enter here overrides
+      what this page suggests, everywhere. Stored in this browser only.
+    </p>
+    <div class="numgrid">
+      <label>City / 311 line
+        <input type="tel" data-num="city" placeholder="311">
+      </label>
+      <label>Animal control
+        <input type="tel" data-num="animal" placeholder="Not set">
+      </label>
+      <label>Public health
+        <input type="tel" data-num="health" placeholder="Not set">
+      </label>
+      <label>Roads authority
+        <input type="tel" data-num="highway" placeholder="Not set">
+      </label>
+      <label>Wildlife agency
+        <input type="tel" data-num="wildlife" placeholder="Not set">
+      </label>
+    </div>
+    <p class="hint" id="numbers-hint"></p>
+  </section>
+
+  <section class="guidance" id="guidance">
+    <h2>Handling guidance</h2>
+    <p class="guidance-lede">
+      Drawn from published animal-control and public-health advice — CDC rabies
+      guidance, state transport carcass-handling procedures, and USDA APHIS
+      disposal guidance. They agree on the important part: assume it is
+      infected, and keep your hands off it.
+    </p>
+    <div class="guidance-grid" id="guidance-grid"></div>
+  </section>
+
+  <section class="faq">
+    <h2>Common questions</h2>
+    <details>
+      <summary>Can I just move it myself?</summary>
+      <p>
+        On public land, don’t. Beyond the disease risk, an uncollected report
+        means the agency never learns that spot is a wildlife crossing or a
+        rodent problem. On your own property you usually can, but call first —
+        many places require specific bagging, and a rabies vector species may
+        need to be kept for testing.
+      </p>
+    </details>
+    <details>
+      <summary>Why do they ask so many questions?</summary>
+      <p>
+        Species and count feed disease surveillance. Location decides which
+        crew is dispatched and whether they need traffic control. Answering
+        properly the first time is usually the difference between a same-day
+        pickup and a repeat call.
+      </p>
+    </details>
+    <details>
+      <summary>Nobody has come. What now?</summary>
+      <p>
+        Call back with your original reference number. If it has been more than
+        a few days on a public road, escalate to your council member or the
+        department’s supervisor line — persistent reports are how these get
+        prioritised.
+      </p>
+    </details>
+    <details>
+      <summary>Where do these phone numbers come from?</summary>
+      <p>
+        They were compiled from official government and agency sources, and
+        every region links to the page it came from so you can check it. They
+        are a starting point, not gospel: agencies reorganise and numbers
+        change. If one is wrong, the emergency number and your local municipal
+        line will always get you to someone who can route the call.
+      </p>
+    </details>
+    <details>
+      <summary>My country is not listed.</summary>
+      <p>
+        The identification and the safety guidance hold anywhere — those are
+        biology and public health, not jurisdiction. The phone routing is
+        specific to the United States, Canada, the United Kingdom and
+        Australia so far. Elsewhere, the structure still applies: local
+        council for public land, roads authority for highways, health
+        department for bats and disease. Save your own numbers above.
+      </p>
+    </details>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p>
+    Guidance only — it is not veterinary or public health advice, and local
+    rules always win. Illustrations are drawn to show field marks, not to be
+    photographs. When you are unsure, describe what you see and let the phone
+    line decide.
+  </p>
+</footer>
+
+<dialog id="sheet" aria-labelledby="sheet-title">
+  <div class="sheet-inner" id="sheet-inner"></div>
+</dialog>
+
+<script>
+/* art.js — parametric SVG illustrations.
+   Every mammal is drawn from one anatomy model, so species differ by real
+   proportions (leg length, snout, ear shape, tail) rather than by clip art.
+   Birds, bats, snakes and turtles get their own small renderers. */
+
+const GROUND = 108;
+const VB = '0 0 200 120';
+
+const esc = (n) => Math.round(n * 10) / 10;
+
+function svgWrap(inner, name) {
+  return `<svg viewBox="${VB}" role="img" aria-label="Illustration of a ${name}" preserveAspectRatio="xMidYMid meet">
+    <ellipse cx="100" cy="${GROUND + 4}" rx="74" ry="5.5" fill="currentColor" opacity=".10"/>
+    ${inner}
+  </svg>`;
+}
+
+/* ---------- shared parts ---------- */
+
+function leg(x, top, len, w, fill, forward = 0) {
+  const bottom = GROUND;
+  const knee = top + len * 0.55;
+  return `<path d="M${esc(x)} ${esc(top)} Q${esc(x + forward)} ${esc(knee)} ${esc(x + forward * 1.4)} ${esc(bottom - w * 0.4)}"
+    fill="none" stroke="${fill}" stroke-width="${w}" stroke-linecap="round"/>`;
+}
+
+function ear(kind, hx, hy, hw, hh, coat, dark) {
+  const bx = hx + hw * 0.12, by = hy - hh * 0.33;
+  const off = kind === 'round' ? 'translate(5 2)' : 'translate(7 4)';
+  const far = (inner) => ({ far: `<g transform="${off}" opacity=".42">${inner}</g>`, near: '' });
+  const pair = (inner) => ({ far: `<g transform="${off}" opacity=".42">${inner}</g>`, near: inner });
+  switch (kind) {
+    case 'round': {
+      const one = (ox) => `<circle cx="${esc(bx + ox)}" cy="${esc(by)}" r="${esc(hh * 0.27)}" fill="${coat}"/>
+        <circle cx="${esc(bx + ox)}" cy="${esc(by + 1)}" r="${esc(hh * 0.10)}" fill="${dark}" opacity=".5"/>`;
+      return pair(one(0));
+    }
+    case 'pointed': {
+      const one = () => `<path d="M${esc(bx - hw * 0.22)} ${esc(by + hh * 0.30)} L${esc(bx - hw * 0.04)} ${esc(by - hh * 0.72)} L${esc(bx + hw * 0.28)} ${esc(by + hh * 0.24)} Z" fill="${coat}"/>
+        <path d="M${esc(bx - hw * 0.08)} ${esc(by + hh * 0.18)} L${esc(bx - hw * 0.03)} ${esc(by - hh * 0.42)} L${esc(bx + hw * 0.14)} ${esc(by + hh * 0.14)} Z" fill="${dark}" opacity=".5"/>`;
+      return pair(one());
+    }
+    case 'floppy': {
+      const one = () => `<path d="M${esc(bx - hw * 0.18)} ${esc(by + hh * 0.18)}
+          Q${esc(bx + hw * 0.30)} ${esc(by - hh * 0.28)} ${esc(bx + hw * 0.34)} ${esc(by + hh * 0.60)}
+          Q${esc(bx + hw * 0.16)} ${esc(by + hh * 1.05)} ${esc(bx - hw * 0.12)} ${esc(by + hh * 0.62)} Z"
+          fill="${dark}" opacity=".92"/>`;
+      return pair(one());
+    }
+    case 'tall': {
+      const one = (ox, rot) => `<ellipse cx="${esc(bx + ox)}" cy="${esc(by - hh * 0.92)}" rx="${esc(hh * 0.24)}" ry="${esc(hh * 1.05)}"
+          fill="${coat}" transform="rotate(${rot} ${esc(bx + ox)} ${esc(by - hh * 0.92)})"/>
+        <ellipse cx="${esc(bx + ox)}" cy="${esc(by - hh * 0.86)}" rx="${esc(hh * 0.11)}" ry="${esc(hh * 0.78)}"
+          fill="${dark}" opacity=".4" transform="rotate(${rot} ${esc(bx + ox)} ${esc(by - hh * 0.92)})"/>`;
+      return { far: `<g transform="translate(7 4)" opacity=".5">${one(4, 14)}</g>`, near: one(-1, 4) };
+    }
+    case 'huge': {
+      const one = () => `<ellipse cx="${esc(bx)}" cy="${esc(by - hh * 0.34)}" rx="${esc(hh * 0.28)}" ry="${esc(hh * 0.66)}"
+        fill="${coat}" transform="rotate(-10 ${esc(bx)} ${esc(by)})"/>`;
+      return pair(one());
+    }
+    case 'tiny':
+      return { far: '', near: `<circle cx="${esc(bx)}" cy="${esc(by + hh * 0.12)}" r="${esc(hh * 0.20)}" fill="${dark}"/>` };
+    default:
+      return { far: '', near: '' };
+  }
+}
+
+function tail(spec, x, y, coat, dark) {
+  const t = spec.type, len = spec.len || 40, w = spec.w || 8;
+  switch (t) {
+    case 'ringed': {
+      const d = `M${esc(x)} ${esc(y)} Q${esc(x + len * 0.7)} ${esc(y - 6)} ${esc(x + len)} ${esc(y + len * 0.30)}`;
+      return `<path d="${d}" fill="none" stroke="${coat}" stroke-width="${w}" stroke-linecap="round"/>
+              <path d="${d}" fill="none" stroke="${dark}" stroke-width="${w}" stroke-dasharray="7 7" stroke-dashoffset="4"/>`;
+    }
+    case 'brush': {
+      const d = `M${esc(x)} ${esc(y)} Q${esc(x + len * 0.75)} ${esc(y + 4)} ${esc(x + len)} ${esc(y + len * 0.45)}`;
+      return `<path d="${d}" fill="none" stroke="${coat}" stroke-width="${w}" stroke-linecap="round"/>
+              ${spec.tip ? `<circle cx="${esc(x + len)}" cy="${esc(y + len * 0.45)}" r="${esc(w * 0.52)}" fill="${spec.tip}"/>` : ''}`;
+    }
+    case 'bushyUp': {
+      const d = `M${esc(x)} ${esc(y)} C${esc(x + len * 0.55)} ${esc(y - 4)} ${esc(x + len * 0.72)} ${esc(y - len * 0.85)} ${esc(x + len * 0.18)} ${esc(y - len * 1.05)}`;
+      return `<path d="${d}" fill="none" stroke="${coat}" stroke-width="${w}" stroke-linecap="round"/>
+              <path d="${d}" fill="none" stroke="${dark}" stroke-width="${esc(w * 0.34)}" stroke-linecap="round" opacity=".35"/>`;
+    }
+    case 'plume': {
+      const d = `M${esc(x)} ${esc(y)} C${esc(x + len * 0.6)} ${esc(y)} ${esc(x + len * 0.8)} ${esc(y - len * 0.8)} ${esc(x + len * 0.15)} ${esc(y - len * 1.0)}`;
+      return `<path d="${d}" fill="none" stroke="${spec.color || coat}" stroke-width="${w}" stroke-linecap="round"/>`;
+    }
+    case 'thin': {
+      const d = `M${esc(x)} ${esc(y)} Q${esc(x + len * 0.8)} ${esc(y - 10)} ${esc(x + len)} ${esc(y + len * 0.42)}`;
+      return `<path d="${d}" fill="none" stroke="${spec.color || dark}" stroke-width="${w}" stroke-linecap="round"/>`;
+    }
+    case 'taper': {
+      const d = `M${esc(x)} ${esc(y)} Q${esc(x + len * 0.6)} ${esc(y + 6)} ${esc(x + len)} ${esc(y + len * 0.5)}`;
+      return `<path d="${d}" fill="none" stroke="${coat}" stroke-width="${w}" stroke-linecap="round"/>
+              <path d="${d}" fill="none" stroke="${dark}" stroke-width="${esc(w * 0.45)}" stroke-linecap="round" opacity=".45"/>`;
+    }
+    case 'stub':
+      return `<circle cx="${esc(x + 4)}" cy="${esc(y - 2)}" r="${esc(w)}" fill="${spec.color || coat}"/>`;
+    default:
+      return '';
+  }
+}
+
+/* ---------- the mammal model ---------- */
+
+function mammal(s) {
+  const bw = s.bodyW, bh = s.bodyH, legLen = s.legLen;
+  const coat = s.coat, dark = s.dark, belly = s.belly || coat;
+  const cx = s.cx || 104;
+  const cy = GROUND - legLen - bh / 2;
+  const shoulderX = cx - bw * 0.34;
+  const rumpX = cx + bw * 0.40;
+  const hw = s.headW, hh = s.headH;
+  const hx = shoulderX - (s.neckDx ?? 20);
+  const hy = cy - (s.neckDy ?? 12);
+  const legTop = cy + bh * 0.22;
+  const legW = s.legW || 7;
+  const legColor = s.legColor || coat;
+  const sl = s.snout ?? 9, st = s.snoutW ?? 8, sd = s.snoutDrop ?? 4;
+
+  const farLeg = `<g opacity=".62">
+      ${leg(shoulderX + 5, legTop, legLen, legW, legColor, -3)}
+      ${leg(rumpX - 7, legTop, legLen, legW, legColor, 3)}
+    </g>`;
+  const nearLeg = `${leg(shoulderX - 2, legTop, legLen, legW, legColor, -2)}
+      ${leg(rumpX, legTop, legLen, legW, legColor, 4)}`;
+
+  const body = `<ellipse cx="${esc(cx)}" cy="${esc(cy)}" rx="${esc(bw / 2)}" ry="${esc(bh / 2)}" fill="${coat}"/>
+    <ellipse cx="${esc(cx)}" cy="${esc(cy + bh * 0.22)}" rx="${esc(bw * 0.42)}" ry="${esc(bh * 0.28)}" fill="${belly}" opacity=".75"/>`;
+
+  const neck = `<path d="M${esc(shoulderX + 4)} ${esc(cy - bh * 0.18)} L${esc(hx + hw * 0.18)} ${esc(hy + hh * 0.10)}"
+      fill="none" stroke="${coat}" stroke-width="${esc(s.neckW || bh * 0.62)}" stroke-linecap="round"/>`;
+
+  const head = `<ellipse cx="${esc(hx)}" cy="${esc(hy)}" rx="${esc(hw / 2)}" ry="${esc(hh / 2)}" fill="${coat}"/>`;
+
+  const snout = sl > 0 ? `<path d="M${esc(hx - hw * 0.05)} ${esc(hy - hh * 0.20)}
+      Q${esc(hx - hw * 0.5 - sl)} ${esc(hy + sd - st / 2)} ${esc(hx - hw * 0.5 - sl)} ${esc(hy + sd)}
+      Q${esc(hx - hw * 0.5 - sl)} ${esc(hy + sd + st / 2)} ${esc(hx - hw * 0.05)} ${esc(hy + hh * 0.36)} Z"
+      fill="${s.snoutColor || coat}"/>
+      <circle cx="${esc(hx - hw * 0.5 - sl + 1)}" cy="${esc(hy + sd - 1)}" r="2" fill="${dark}"/>` : '';
+
+  const eye = `<circle cx="${esc(hx - hw * 0.16)}" cy="${esc(hy - hh * 0.08)}" r="2.4" fill="#14181f"/>
+    <circle cx="${esc(hx - hw * 0.16 + 0.8)}" cy="${esc(hy - hh * 0.08 - 0.8)}" r=".8" fill="#fff" opacity=".85"/>`;
+
+  /* species markings */
+  let marks = '';
+  if (s.mark === 'mask') {
+    marks += `<path d="M${esc(hx - hw * 0.46)} ${esc(hy - hh * 0.20)} Q${esc(hx)} ${esc(hy - hh * 0.34)} ${esc(hx + hw * 0.44)} ${esc(hy - hh * 0.16)}
+        L${esc(hx + hw * 0.42)} ${esc(hy + hh * 0.18)} Q${esc(hx)} ${esc(hy + hh * 0.06)} ${esc(hx - hw * 0.44)} ${esc(hy + hh * 0.16)} Z" fill="#2b3038"/>
+      <path d="M${esc(hx - hw * 0.5)} ${esc(hy - hh * 0.34)} Q${esc(hx - hw * 0.1)} ${esc(hy - hh * 0.46)} ${esc(hx + hw * 0.2)} ${esc(hy - hh * 0.40)}" fill="none" stroke="#f4f2ee" stroke-width="3" stroke-linecap="round"/>`;
+  }
+  if (s.mark === 'stripe') {
+    marks += `<path d="M${esc(shoulderX + 2)} ${esc(cy - bh * 0.46)} Q${esc(cx)} ${esc(cy - bh * 0.60)} ${esc(rumpX - 4)} ${esc(cy - bh * 0.46)}"
+        fill="none" stroke="#f6f4f0" stroke-width="3.4" stroke-linecap="round"/>
+      <path d="M${esc(shoulderX + 2)} ${esc(cy - bh * 0.30)} Q${esc(cx)} ${esc(cy - bh * 0.40)} ${esc(rumpX - 4)} ${esc(cy - bh * 0.28)}"
+        fill="none" stroke="#f6f4f0" stroke-width="3.4" stroke-linecap="round"/>
+      <path d="M${esc(hx - hw * 0.02)} ${esc(hy - hh * 0.40)} L${esc(hx - hw * 0.22)} ${esc(hy + hh * 0.30)}"
+        fill="none" stroke="#f6f4f0" stroke-width="2.4" stroke-linecap="round"/>`;
+  }
+  if (s.mark === 'bands') {
+    for (let i = 0; i < 6; i++) {
+      const x = cx - bw * 0.26 + i * (bw * 0.10);
+      marks += `<path d="M${esc(x)} ${esc(cy - bh * 0.46)} Q${esc(x + 3)} ${esc(cy)} ${esc(x)} ${esc(cy + bh * 0.42)}"
+        fill="none" stroke="${dark}" stroke-width="2.2" opacity=".7"/>`;
+    }
+  }
+  if (s.mark === 'spots') {
+    marks += `<g fill="#fdfaf3" opacity=".8">
+      <circle cx="${esc(cx - 12)}" cy="${esc(cy - bh * 0.16)}" r="2.6"/>
+      <circle cx="${esc(cx + 2)}" cy="${esc(cy - bh * 0.28)}" r="2.4"/>
+      <circle cx="${esc(cx + 15)}" cy="${esc(cy - bh * 0.12)}" r="2.6"/></g>`;
+  }
+  if (s.mark === 'tabby') {
+    for (let i = 0; i < 4; i++) {
+      const x = cx - bw * 0.24 + i * (bw * 0.16);
+      marks += `<path d="M${esc(x)} ${esc(cy - bh * 0.46)} Q${esc(x + 5)} ${esc(cy - bh * 0.28)} ${esc(x + 1)} ${esc(cy - bh * 0.02)}"
+        fill="none" stroke="${dark}" stroke-width="2.4" stroke-linecap="round" opacity=".42"/>`;
+    }
+  }
+  if (s.mark === 'palemuzzle') {
+    marks += `<ellipse cx="${esc(hx - hw * 0.34)}" cy="${esc(hy + hh * 0.22)}" rx="${esc(hw * 0.30)}" ry="${esc(hh * 0.26)}" fill="#f2efe8" opacity=".85"/>`;
+  }
+
+  const antlers = s.antlers ? `<g fill="none" stroke="#9c7c50" stroke-width="3.2" stroke-linecap="round">
+      <path d="M${esc(hx + hw * 0.10)} ${esc(hy - hh * 0.44)} C${esc(hx + hw * 0.42)} ${esc(hy - hh * 1.3)} ${esc(hx + hw * 0.20)} ${esc(hy - hh * 1.9)} ${esc(hx - hw * 0.18)} ${esc(hy - hh * 2.3)}"/>
+      <path d="M${esc(hx + hw * 0.26)} ${esc(hy - hh * 0.98)} L${esc(hx - hw * 0.26)} ${esc(hy - hh * 1.20)}"/>
+      <path d="M${esc(hx + hw * 0.20)} ${esc(hy - hh * 1.30)} L${esc(hx - hw * 0.30)} ${esc(hy - hh * 1.48)}"/>
+      </g>` : '';
+
+  const ears = ear(s.ear, hx, hy, hw, hh, s.earColor || coat, dark);
+
+  return svgWrap(`
+    ${farLeg}
+    ${tail(s.tail || { type: 'none' }, rumpX + bw * 0.06, cy - bh * 0.12, s.tail?.coat || coat, dark)}
+    ${body}
+    ${neck}
+    ${antlers}
+    ${ears.far}
+    ${head}
+    ${snout}
+    ${marks}
+    ${ears.near}
+    ${eye}
+    ${nearLeg}
+  `, s.name);
+}
+
+/* ---------- non-mammal renderers ---------- */
+
+function bird(s) {
+  const cx = 100, cy = 74, bw = s.bodyW || 58, bh = s.bodyH || 40;
+  const hx = cx - bw * 0.46, hy = cy - bh * 0.72;
+  return svgWrap(`
+    <path d="M${esc(cx + bw * 0.34)} ${esc(cy - 4)} L${esc(cx + bw * 0.92)} ${esc(cy + 4)} L${esc(cx + bw * 0.90)} ${esc(cy + 14)} L${esc(cx + bw * 0.30)} ${esc(cy + 8)} Z" fill="${s.dark}"/>
+    <path d="M${esc(cx - 6)} ${esc(GROUND - 26)} L${esc(cx - 8)} ${esc(GROUND)} M${esc(cx + 8)} ${esc(GROUND - 26)} L${esc(cx + 11)} ${esc(GROUND)}"
+      stroke="${s.leg || '#c8737f'}" stroke-width="3.4" stroke-linecap="round" fill="none"/>
+    <ellipse cx="${esc(cx)}" cy="${esc(cy)}" rx="${esc(bw / 2)}" ry="${esc(bh / 2)}" fill="${s.coat}"/>
+    <path d="M${esc(cx - bw * 0.30)} ${esc(cy - bh * 0.12)} Q${esc(cx + bw * 0.10)} ${esc(cy - bh * 0.46)} ${esc(cx + bw * 0.40)} ${esc(cy + bh * 0.10)}
+      Q${esc(cx + bw * 0.02)} ${esc(cy + bh * 0.30)} ${esc(cx - bw * 0.30)} ${esc(cy - bh * 0.12)} Z" fill="${s.dark}" opacity=".55"/>
+    <path d="M${esc(cx - bw * 0.40)} ${esc(cy - bh * 0.30)} Q${esc(hx + 6)} ${esc(hy + 10)} ${esc(hx + 2)} ${esc(hy + 4)}"
+      stroke="${s.coat}" stroke-width="15" stroke-linecap="round" fill="none"/>
+    ${s.iridescent ? `<path d="M${esc(cx - bw * 0.40)} ${esc(cy - bh * 0.26)} Q${esc(hx + 8)} ${esc(hy + 12)} ${esc(hx + 3)} ${esc(hy + 7)}"
+      stroke="#4c7f6d" stroke-width="8" stroke-linecap="round" fill="none" opacity=".75"/>` : ''}
+    <circle cx="${esc(hx)}" cy="${esc(hy)}" r="${esc(s.headR || 11)}" fill="${s.coat}"/>
+    <path d="M${esc(hx - (s.headR || 11) * 0.7)} ${esc(hy)} L${esc(hx - (s.headR || 11) - (s.beak || 10))} ${esc(hy + (s.beakDrop || 3))} L${esc(hx - (s.headR || 11) * 0.7)} ${esc(hy + 5)} Z" fill="${s.beakColor || '#3d4048'}"/>
+    <circle cx="${esc(hx - 3)}" cy="${esc(hy - 2)}" r="2.3" fill="#14181f"/>
+    <circle cx="${esc(hx - 2.4)}" cy="${esc(hy - 2.8)}" r=".8" fill="#fff" opacity=".85"/>
+  `, s.name);
+}
+
+function bat(s) {
+  const cx = 100, cy = 62;
+  const wing = (dir) => `<path d="M${esc(cx + dir * 6)} ${esc(cy - 8)}
+      Q${esc(cx + dir * 46)} ${esc(cy - 34)} ${esc(cx + dir * 76)} ${esc(cy - 6)}
+      Q${esc(cx + dir * 58)} ${esc(cy + 2)} ${esc(cx + dir * 52)} ${esc(cy + 14)}
+      Q${esc(cx + dir * 38)} ${esc(cy + 2)} ${esc(cx + dir * 30)} ${esc(cy + 18)}
+      Q${esc(cx + dir * 18)} ${esc(cy + 6)} ${esc(cx + dir * 6)} ${esc(cy + 16)} Z"
+      fill="${s.dark}" opacity=".92"/>
+    <path d="M${esc(cx + dir * 8)} ${esc(cy - 6)} L${esc(cx + dir * 70)} ${esc(cy - 6)}
+      M${esc(cx + dir * 8)} ${esc(cy - 4)} L${esc(cx + dir * 48)} ${esc(cy + 12)}
+      M${esc(cx + dir * 8)} ${esc(cy - 2)} L${esc(cx + dir * 28)} ${esc(cy + 16)}"
+      stroke="${s.coat}" stroke-width="1.6" opacity=".45" fill="none"/>`;
+  return svgWrap(`
+    ${wing(-1)}${wing(1)}
+    <ellipse cx="${esc(cx)}" cy="${esc(cy + 4)}" rx="9" ry="17" fill="${s.coat}"/>
+    <ellipse cx="${esc(cx - 7)}" cy="${esc(cy - 22)}" rx="5" ry="9" fill="${s.coat}" transform="rotate(-18 ${esc(cx - 7)} ${esc(cy - 22)})"/>
+    <ellipse cx="${esc(cx + 7)}" cy="${esc(cy - 22)}" rx="5" ry="9" fill="${s.coat}" transform="rotate(18 ${esc(cx + 7)} ${esc(cy - 22)})"/>
+    <circle cx="${esc(cx)}" cy="${esc(cy - 14)}" r="11" fill="${s.coat}"/>
+    <ellipse cx="${esc(cx)}" cy="${esc(cy - 8)}" rx="6" ry="5" fill="${s.dark}" opacity=".5"/>
+    <circle cx="${esc(cx - 4)}" cy="${esc(cy - 16)}" r="2" fill="#14181f"/>
+    <circle cx="${esc(cx + 4)}" cy="${esc(cy - 16)}" r="2" fill="#14181f"/>
+  `, s.name);
+}
+
+function snake(s) {
+  const d = `M28 ${GROUND - 8} C60 ${GROUND - 40} 84 ${GROUND + 6} 112 ${GROUND - 24} C130 ${GROUND - 42} 148 ${GROUND - 10} 170 ${GROUND - 22}`;
+  return svgWrap(`
+    <path d="${d}" fill="none" stroke="${s.coat}" stroke-width="14" stroke-linecap="round"/>
+    <path d="${d}" fill="none" stroke="${s.dark}" stroke-width="14" stroke-dasharray="9 13" opacity=".8"/>
+    <path d="${d}" fill="none" stroke="#ffffff" stroke-width="3" opacity=".16"/>
+    <ellipse cx="24" cy="${GROUND - 10}" rx="13" ry="8.5" fill="${s.coat}" transform="rotate(-16 24 ${GROUND - 10})"/>
+    <circle cx="19" cy="${GROUND - 13}" r="2.1" fill="#14181f"/>
+    <path d="M12 ${GROUND - 9} l-9 -3 M12 ${GROUND - 9} l-9 2" stroke="#c0392b" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+  `, s.name);
+}
+
+function turtle(s) {
+  const cx = 100, cy = 76;
+  return svgWrap(`
+    <path d="M${esc(cx - 40)} ${esc(cy + 12)} l-8 14 M${esc(cx - 18)} ${esc(cy + 18)} l-5 12
+             M${esc(cx + 22)} ${esc(cy + 18)} l6 12 M${esc(cx + 40)} ${esc(cy + 10)} l9 13"
+      stroke="${s.dark}" stroke-width="8" stroke-linecap="round" fill="none"/>
+    <path d="M${esc(cx + 44)} ${esc(cy + 2)} q14 4 20 12" stroke="${s.dark}" stroke-width="6" stroke-linecap="round" fill="none"/>
+    <path d="M${esc(cx - 44)} ${esc(cy - 2)} q-16 -2 -22 8 q10 10 22 6" fill="${s.dark}"/>
+    <circle cx="${esc(cx - 58)}" cy="${esc(cy + 1)}" r="2.2" fill="#14181f"/>
+    <path d="M${esc(cx - 50)} ${esc(cy + 6)} a50 34 0 0 1 100 0 Z" fill="${s.coat}"/>
+    <g fill="none" stroke="${s.dark}" stroke-width="2" opacity=".65">
+      <path d="M${esc(cx - 50)} ${esc(cy + 6)} a50 34 0 0 1 100 0"/>
+      <path d="M${esc(cx - 26)} ${esc(cy + 4)} q4 -22 0 -26 M${esc(cx)} ${esc(cy + 5)} l0 -30 M${esc(cx + 26)} ${esc(cy + 4)} q-4 -22 0 -26"/>
+      <path d="M${esc(cx - 40)} ${esc(cy - 10)} q40 -14 80 0"/>
+    </g>
+  `, s.name);
+}
+
+const RENDERERS = { mammal, bird, bat, snake, turtle };
+
+function renderAnimal(a) {
+  const fn = RENDERERS[a.art.kind] || mammal;
+  return fn({ ...a.art, name: a.name });
+}
+
+</script>
+<script>
+/* animals.js — the identification data.
+   `marks` are the field marks you can check from a safe distance, ordered
+   most-diagnostic first. `confuse` names the look-alike people actually
+   mix it up with. `report` picks the routing rule in app.js. */
+
+const ANIMALS = [
+  {
+    id: 'raccoon', name: 'Raccoon', aka: 'Procyon lotor', size: 'medium',
+    length: '24–38 in nose to tail · 10–20 lb',
+    marks: [
+      'Black bandit mask across the eyes, edged in white',
+      'Bushy tail with 4–7 dark rings',
+      'Grizzled salt-and-pepper grey fur, hunched back',
+      'Front paws look like small bare hands'
+    ],
+    confuse: 'Opossums — but an opossum has a pale pointed face and a bare rat-like tail with no rings.',
+    risk: { level: 'high', text: 'A rabies vector species. Never touch it, even with gloves, and keep pets well clear.' },
+    report: 'wildlife',
+    art: { kind: 'mammal', bodyW: 68, bodyH: 34, legLen: 15, legW: 8, headW: 26, headH: 22, neckDx: 22, neckDy: 8, snout: 8, snoutW: 9, ear: 'round', mark: 'mask', coat: '#8d8e8a', dark: '#4a4c50', belly: '#a9a9a4', tail: { type: 'ringed', len: 42, w: 12 } }
+  },
+  {
+    id: 'opossum', name: 'Virginia Opossum', aka: 'Possum', size: 'medium',
+    length: '24–34 in nose to tail · 4–14 lb',
+    marks: [
+      'Long bare pink-grey tail, scaly, no fur and no rings',
+      'White or pale grey pointed face with a pink nose',
+      'Thin black naked ears',
+      'Shaggy off-white body fur, low to the ground'
+    ],
+    confuse: 'Large rats and raccoons. The white face plus the bare tail settles it.',
+    risk: { level: 'low', text: 'Rarely carries rabies (low body temperature). Still do not handle it — check the pouch is not moving before you assume it is a single animal.' },
+    report: 'wildlife',
+    art: { kind: 'mammal', bodyW: 64, bodyH: 30, legLen: 13, legW: 7, headW: 24, headH: 19, neckDx: 21, neckDy: 6, snout: 15, snoutW: 6, snoutColor: '#f2efe9', ear: 'round', earColor: '#4a4550', coat: '#d6d2c8', dark: '#2e2a33', belly: '#efece4', tail: { type: 'thin', len: 46, w: 6, color: '#e3bfc2' } }
+  },
+  {
+    id: 'squirrel', name: 'Grey Squirrel', aka: 'Tree squirrel', size: 'small',
+    length: '16–20 in nose to tail · under 1.5 lb',
+    marks: [
+      'Tail as long as the body and very bushy, often curled over the back',
+      'Small, no larger than a forearm',
+      'Grey or reddish-brown with a pale belly',
+      'Small rounded ears, large dark eye'
+    ],
+    confuse: 'Rats — but a rat has a bare tail and a blunter, lower body.',
+    risk: { level: 'low', text: 'Low disease risk to people, but do not handle bare-handed.' },
+    report: 'city',
+    art: { kind: 'mammal', bodyW: 40, bodyH: 24, legLen: 10, legW: 5.5, headW: 19, headH: 17, neckDx: 15, neckDy: 8, snout: 6, snoutW: 6, ear: 'round', coat: '#93867a', dark: '#5c5248', belly: '#e6ddd0', cx: 96, tail: { type: 'bushyUp', len: 48, w: 20 } }
+  },
+  {
+    id: 'skunk', name: 'Striped Skunk', aka: 'Mephitis mephitis', size: 'medium',
+    length: '20–30 in nose to tail · 6–10 lb',
+    marks: [
+      'Glossy black with a white stripe splitting down the back',
+      'Thin white blaze up the middle of the face',
+      'Big white plume of a tail',
+      'Smell is usually obvious before you see it'
+    ],
+    confuse: 'Nothing else, really — the stripe is unmistakable.',
+    risk: { level: 'high', text: 'A rabies vector species. Do not approach; the scent glands can still release after death.' },
+    report: 'wildlife',
+    art: { kind: 'mammal', bodyW: 58, bodyH: 28, legLen: 11, legW: 7, headW: 22, headH: 18, neckDx: 19, neckDy: 6, snout: 10, snoutW: 7, ear: 'round', mark: 'stripe', coat: '#26262b', dark: '#0f0f12', belly: '#26262b', tail: { type: 'plume', len: 40, w: 15, color: '#f2efe9' } }
+  },
+  {
+    id: 'deer', name: 'White-tailed Deer', aka: 'Whitetail', size: 'large',
+    length: '4–7 ft long · 100–300 lb',
+    marks: [
+      'Far too large to lift — the size alone identifies it',
+      'Long thin legs with hard black hooves',
+      'Tan or grey-brown coat, white underside to the tail',
+      'Males may have antlers (autumn and winter)'
+    ],
+    confuse: 'Nothing on a road. If it has hooves and is dog-sized or larger, treat it as a deer.',
+    risk: { level: 'medium', text: 'The carcass itself is a serious traffic hazard. Do not try to drag it yourself on a live roadway.' },
+    report: 'highway',
+    art: { kind: 'mammal', bodyW: 78, bodyH: 38, legLen: 28, legW: 6.5, headW: 23, headH: 16, neckDx: 28, neckDy: 21, neckW: 15, snout: 11, snoutW: 8, ear: 'huge', antlers: true, coat: '#b08a5e', dark: '#7a5a3c', belly: '#efe7d8', tail: { type: 'stub', w: 8, color: '#f4efe4' } }
+  },
+  {
+    id: 'coyote', name: 'Coyote', aka: 'Canis latrans', size: 'large',
+    length: '3.5–4.5 ft nose to tail · 20–45 lb',
+    marks: [
+      'Looks like a lean, leggy German shepherd but narrower in the chest',
+      'Bushy tail carried low, dark tip',
+      'Grizzled grey-brown coat, rusty legs and ears',
+      'Tall pointed ears and a narrow pointed muzzle'
+    ],
+    confuse: 'A stray dog. Coyotes are slimmer, longer-legged, and never wear a collar — check for one.',
+    risk: { level: 'high', text: 'A rabies vector species. Report rather than remove.' },
+    report: 'wildlife',
+    art: { kind: 'mammal', bodyW: 74, bodyH: 32, legLen: 27, legW: 7, headW: 25, headH: 19, neckDx: 25, neckDy: 17, snout: 14, snoutW: 7, ear: 'pointed', mark: 'palemuzzle', coat: '#a08a6d', dark: '#66573f', belly: '#ded2bd', tail: { type: 'brush', len: 40, w: 12, tip: '#4a4034' } }
+  },
+  {
+    id: 'fox', name: 'Red Fox', aka: 'Vulpes vulpes', size: 'medium',
+    length: '3–3.5 ft nose to tail · 8–15 lb',
+    marks: [
+      'Rusty orange coat with a white throat and belly',
+      'Big bushy tail with a bright white tip',
+      'Black stockings — the lower legs are clearly darker',
+      'Small, cat-sized body on a dog-shaped frame'
+    ],
+    confuse: 'Coyotes. A fox is roughly half the weight and the white tail tip is decisive.',
+    risk: { level: 'high', text: 'A rabies vector species. Do not touch.' },
+    report: 'wildlife',
+    art: { kind: 'mammal', bodyW: 62, bodyH: 26, legLen: 20, legW: 6, headW: 22, headH: 17, neckDx: 21, neckDy: 12, snout: 13, snoutW: 6, ear: 'pointed', mark: 'palemuzzle', coat: '#c96f33', dark: '#7d3f16', belly: '#f0e7d9', legColor: '#3a2e28', tail: { type: 'brush', len: 42, w: 14, tip: '#f6f3ec' } }
+  },
+  {
+    id: 'rabbit', name: 'Cottontail Rabbit', aka: 'Eastern cottontail', size: 'small',
+    length: '14–19 in · 2–4 lb',
+    marks: [
+      'Long upright ears, longer than the head',
+      'Round puff of a white tail',
+      'Brown-grey fur, no visible tail length',
+      'Hind legs much larger than the front'
+    ],
+    confuse: 'Hares (bigger, longer ears with black tips) — the routing is the same either way.',
+    risk: { level: 'medium', text: 'Can carry tularemia. Do not handle bare-handed.' },
+    report: 'city',
+    art: { kind: 'mammal', bodyW: 46, bodyH: 28, legLen: 11, legW: 6.5, headW: 20, headH: 17, neckDx: 16, neckDy: 9, snout: 5, snoutW: 7, ear: 'tall', coat: '#a8977f', dark: '#6d5f4c', belly: '#eee7da', cx: 100, tail: { type: 'stub', w: 8, color: '#f6f3ec' } }
+  },
+  {
+    id: 'groundhog', name: 'Groundhog', aka: 'Woodchuck, marmot', size: 'medium',
+    length: '20–27 in · 6–13 lb',
+    marks: [
+      'Chunky, barrel-shaped body sitting very low to the ground',
+      'Short bushy tail, about a quarter of the body length',
+      'Coarse grizzled brown fur',
+      'Small ears set far back, dark feet'
+    ],
+    confuse: 'Beavers and muskrats near water — those have flat or thin scaly tails.',
+    risk: { level: 'low', text: 'Low risk, but burrow rodents can carry fleas. Do not handle.' },
+    report: 'city',
+    art: { kind: 'mammal', bodyW: 62, bodyH: 34, legLen: 8, legW: 8, headW: 22, headH: 19, neckDx: 18, neckDy: 4, snout: 7, snoutW: 8, ear: 'round', coat: '#8a7350', dark: '#54452e', belly: '#a89272', tail: { type: 'taper', len: 22, w: 10 } }
+  },
+  {
+    id: 'armadillo', name: 'Nine-banded Armadillo', aka: 'Armadillo', size: 'medium',
+    length: '24–32 in nose to tail · 8–17 lb',
+    marks: [
+      'Hard bony shell in jointed bands across the back',
+      'Long stiff tapering tail, also armoured',
+      'Long pointed snout and tall narrow ears',
+      'Almost hairless, greyish-brown'
+    ],
+    confuse: 'Nothing — the armour plating is unique.',
+    risk: { level: 'medium', text: 'Can carry the bacterium that causes leprosy. Never handle one bare-handed.' },
+    report: 'wildlife',
+    art: { kind: 'mammal', bodyW: 62, bodyH: 30, legLen: 9, legW: 7, headW: 20, headH: 15, neckDx: 18, neckDy: 4, snout: 15, snoutW: 5, ear: 'huge', mark: 'bands', coat: '#9d9384', dark: '#5f574b', belly: '#b5ab9a', tail: { type: 'taper', len: 34, w: 7 } }
+  },
+  {
+    id: 'cat', name: 'Domestic Cat', aka: 'Pet or stray cat', size: 'small',
+    length: '18–24 in body · 8–12 lb',
+    marks: [
+      'Check for a collar, tag, or a shaved patch from a vet',
+      'Even, smooth coat — often tabby striped, solid, or patched',
+      'Slim tail of even thickness, furred to the tip',
+      'Small triangular ears set high on a round head'
+    ],
+    confuse: 'Young foxes. A fox has a much bushier tail and a longer muzzle.',
+    risk: { level: 'medium', text: 'Likely somebody’s pet. Do not move it far — animal control scans for a microchip and notifies the owner.' },
+    report: 'pet',
+    art: { kind: 'mammal', bodyW: 56, bodyH: 28, legLen: 11, legW: 6.5, headW: 22, headH: 20, neckDx: 18, neckDy: 9, neckW: 15, snout: 4, snoutW: 8, ear: 'pointed', mark: 'tabby', coat: '#9a8b7b', dark: '#574c42', belly: '#e8e0d3', cx: 100, tail: { type: 'brush', len: 38, w: 7 } }
+  },
+  {
+    id: 'dog', name: 'Domestic Dog', aka: 'Pet or stray dog', size: 'large',
+    length: 'Varies enormously by breed',
+    marks: [
+      'Check for a collar, tag, or harness first — this is the key detail to report',
+      'Blunt or square muzzle, broad chest',
+      'Claws are blunt and non-retractable',
+      'Coat and size vary; breed is worth noting for the owner'
+    ],
+    confuse: 'Coyotes. Coyotes have a narrow chest, rusty ears, and no collar.',
+    risk: { level: 'medium', text: 'Almost certainly a pet. Report it promptly — a microchip scan can reunite it with its family.' },
+    report: 'pet',
+    art: { kind: 'mammal', bodyW: 68, bodyH: 34, legLen: 21, legW: 8.5, headW: 25, headH: 21, neckDx: 24, neckDy: 15, snout: 10, snoutW: 10, ear: 'floppy', coat: '#c9a271', dark: '#8a6238', belly: '#eddfc6', tail: { type: 'brush', len: 34, w: 10 } }
+  },
+  {
+    id: 'rat', name: 'Norway Rat', aka: 'Brown rat, sewer rat', size: 'small',
+    length: '9–11 in body plus a 7–9 in tail',
+    marks: [
+      'Bare scaly tail, shorter than the body',
+      'Small ears that would not reach the eye if folded forward',
+      'Blunt nose, coarse brown-grey fur',
+      'Heavy-bodied compared with a mouse'
+    ],
+    confuse: 'Young opossums and squirrels. A squirrel’s tail is bushy; an opossum has a white face.',
+    risk: { level: 'high', text: 'Carries leptospirosis and other pathogens. A cluster of dead rats can signal poisoning or disease — mention the number you see.' },
+    report: 'health',
+    art: { kind: 'mammal', bodyW: 46, bodyH: 22, legLen: 7, legW: 5, headW: 18, headH: 15, neckDx: 15, neckDy: 3, snout: 10, snoutW: 5, ear: 'round', coat: '#8c7c6a', dark: '#544a3f', belly: '#c8bcaa', tail: { type: 'thin', len: 44, w: 4.5, color: '#c9a7a0' } }
+  },
+  {
+    id: 'pigeon', name: 'Pigeon', aka: 'Rock dove', size: 'small',
+    length: '12–14 in · under 1 lb',
+    marks: [
+      'Grey body with two dark bars across each wing',
+      'Green-purple sheen on the neck',
+      'Small head, short slim beak with a white fleshy patch at the base',
+      'Pink-red legs and feet'
+    ],
+    confuse: 'Doves and gulls. Wing bars plus the neck sheen are the giveaway.',
+    risk: { level: 'medium', text: 'Droppings and feathers can carry fungal spores. Several dead birds in one spot is worth reporting as a possible disease event.' },
+    report: 'health',
+    art: { kind: 'bird', bodyW: 58, bodyH: 38, headR: 11, beak: 8, coat: '#8d949e', dark: '#4e555f', leg: '#c8737f', iridescent: true, beakColor: '#454a52' }
+  },
+  {
+    id: 'crow', name: 'Crow', aka: 'American crow', size: 'small',
+    length: '16–21 in · about 1 lb',
+    marks: [
+      'Entirely glossy black — beak, legs and eyes included',
+      'Heavy, straight, thick beak',
+      'Square-ended tail',
+      'Noticeably larger than a pigeon'
+    ],
+    confuse: 'Ravens (bigger, wedge-shaped tail, shaggy throat) and grackles (smaller, long keel tail).',
+    risk: { level: 'high', text: 'Dead crows are a tracked warning sign for West Nile virus. Public health departments often want these reported specifically.' },
+    report: 'health',
+    art: { kind: 'bird', bodyW: 64, bodyH: 40, headR: 12, beak: 13, beakDrop: 4, coat: '#2c2e34', dark: '#15161a', leg: '#1c1d21', beakColor: '#101114' }
+  },
+  {
+    id: 'bat', name: 'Bat', aka: 'Various species', size: 'small',
+    length: '3–7 in body · 8–16 in wingspan',
+    marks: [
+      'Skin wings stretched between long finger bones',
+      'Mouse-like furry body, tiny by comparison with the wings',
+      'Large ears relative to the head',
+      'Often found on the ground or a wall in daylight, which is itself abnormal'
+    ],
+    confuse: 'Birds. Bats have no feathers — the wing is bare membrane.',
+    risk: { level: 'high', text: 'The highest-priority case here. Bats are the leading rabies source in human cases. If any person or pet may have touched it, or it was found in a room where someone was asleep, call public health immediately and ask them to keep the bat for testing — do not discard it.' },
+    report: 'bat',
+    art: { kind: 'bat', coat: '#7a6152', dark: '#3d3128' }
+  },
+  {
+    id: 'snake', name: 'Snake', aka: 'Various species', size: 'small',
+    length: '1–6 ft depending on species',
+    marks: [
+      'No legs, dry scaled skin — not slimy',
+      'Note the pattern: bands, diamonds, blotches or plain',
+      'A triangular head and vertical pupils suggest a venomous species',
+      'A rattle at the tail tip is decisive'
+    ],
+    confuse: 'Legless lizards and large earthworms. A snake has no eyelids and no ear openings.',
+    risk: { level: 'high', text: 'A freshly dead venomous snake can still bite by reflex for up to an hour — the bite reflex outlives the animal. Keep well back and never handle the head.' },
+    report: 'wildlife',
+    art: { kind: 'snake', coat: '#7b8c5a', dark: '#4a5636' }
+  },
+  {
+    id: 'turtle', name: 'Turtle', aka: 'Terrapin, tortoise', size: 'small',
+    length: '5–14 in shell',
+    marks: [
+      'Hard domed shell with visible plate segments (scutes)',
+      'Short scaly legs, clawed feet',
+      'Small head on a retractable neck',
+      'Shell damage is the usual sign of a vehicle strike'
+    ],
+    confuse: 'Nothing. Note whether the shell is domed (land) or flat (water) when you call.',
+    risk: { level: 'medium', text: 'Salmonella risk from the shell. Many turtle species are protected — the call matters even for a dead one.' },
+    report: 'wildlife',
+    art: { kind: 'turtle', coat: '#7d6a45', dark: '#4b3f2b' }
+  }
+];
+
+</script>
+<script>
+/* jurisdictions.js — who to call, by country and region.
+   Compiled from official government and agency sources in September 2026
+   (see `url` on each region). Agencies reorganise and numbers change, so
+   every entry carries its official page: the number is a starting point,
+   the link is the authority. Nothing here is invented — where no statewide
+   number could be verified, the country-level fallback is used instead. */
+
+const COMPILED = 'September 2026';
+
+/* Reusable contacts ------------------------------------------------------ */
+
+const US_LOCAL = {
+  name: 'Your city or county line',
+  phone: '311',
+  note: '311 reaches the municipal line in most US cities. Outside a 311 area, use your county’s non-emergency number.'
+};
+
+const UK_COUNCIL = {
+  name: 'Your local council',
+  phone: null,
+  web: 'https://www.gov.uk/report-dead-animal',
+  note: 'In the UK the local council collects dead animals from roads and public land. GOV.UK routes you to yours by postcode.'
+};
+
+/* ------------------------------------------------------------------------ */
+
+const JURISDICTIONS = {
+  us: {
+    name: 'United States',
+    regionLabel: 'State',
+    emergency: { name: 'Emergency services', phone: '911' },
+    lines: {
+      city: US_LOCAL,
+      pet: { ...US_LOCAL, name: 'Animal control, via your city line' },
+      health: { ...US_LOCAL, name: 'Public health or vector control, via your city line' },
+      bat: { ...US_LOCAL, name: 'Your local health department, via your city line', note: 'Ask for the rabies or communicable disease desk. If anyone may have touched the bat, also contact a doctor the same day.' },
+      highway: {
+        name: 'State highway information',
+        phone: '511',
+        note: '511 is the FCC-designated traveler information line. If a carcass is blocking a lane, call 911 instead — 511 is information, not dispatch.'
+      }
+    },
+    national: [
+      { name: 'USDA APHIS Wildlife Services', phone: '1-866-487-3297', note: 'Routes to your state office by area code.' },
+      { name: 'APHIS sick or dead wild bird line', phone: '1-866-536-7593', note: 'For unusual bird die-offs and suspected avian influenza.' }
+    ],
+    regions: [
+      { code: 'AL', name: 'Alabama', wildlife: { name: 'Alabama Wildlife & Freshwater Fisheries', phone: '334-242-3465' }, url: 'https://www.outdooralabama.com' },
+      { code: 'AK', name: 'Alaska', wildlife: { name: 'Alaska Wildlife Troopers', phone: '800-478-3377' }, url: 'https://www.adfg.alaska.gov' },
+      { code: 'AZ', name: 'Arizona', wildlife: { name: 'Arizona Game & Fish', phone: '800-352-0700' }, url: 'https://www.azgfd.com' },
+      { code: 'AR', name: 'Arkansas', wildlife: { name: 'Arkansas Game & Fish Commission', phone: '800-364-4263' }, url: 'https://www.agfc.com' },
+      { code: 'CA', name: 'California', wildlife: { name: 'California Dept. of Fish & Wildlife', phone: '916-445-0411' }, highway: { name: 'Caltrans service request', phone: '511', note: 'Caltrans dispatches carcass pickup by district; the online service request at csr.dot.ca.gov reaches the right yard.' }, url: 'https://wildlife.ca.gov' },
+      { code: 'CO', name: 'Colorado', wildlife: { name: 'Colorado Parks & Wildlife', phone: '303-297-1192' }, url: 'https://cpw.state.co.us' },
+      { code: 'CT', name: 'Connecticut', wildlife: { name: 'CT DEEP dispatch', phone: '860-424-3011' }, url: 'https://portal.ct.gov/deep' },
+      { code: 'DE', name: 'Delaware', wildlife: { name: 'DNREC Fish & Wildlife', phone: '302-739-9910', note: 'Five or more sick or dead animals in one place: 302-735-3600 ext. 2.' }, url: 'https://dnrec.delaware.gov' },
+      { code: 'DC', name: 'District of Columbia', wildlife: { name: 'DC Dept. of Public Works', phone: '202-737-4404' }, city: { name: 'DC 311', phone: '311', note: 'DPW collects from public space only — sidewalk, street or alley. They do not enter private property.' }, url: 'https://dpw.dc.gov/service/dead-animal-collection' },
+      { code: 'FL', name: 'Florida', wildlife: { name: 'FWC Wildlife Alert', phone: '888-404-3922' }, highway: { name: 'Florida Highway Patrol', phone: '*347', note: 'Dial *FHP. Give the nearest exit or mile marker; FDOT picks up on state highways.' }, url: 'https://myfwc.com' },
+      { code: 'GA', name: 'Georgia', wildlife: { name: 'Georgia DNR Wildlife Resources', phone: '706-557-3333' }, url: 'https://georgiawildlife.com' },
+      { code: 'HI', name: 'Hawaii', wildlife: { name: 'DLNR DOCARE', phone: '808-643-3567' }, url: 'https://dlnr.hawaii.gov/dofaw' },
+      { code: 'ID', name: 'Idaho', wildlife: { name: 'Idaho Fish & Game', phone: '208-334-3700' }, url: 'https://idfg.idaho.gov' },
+      { code: 'IL', name: 'Illinois', wildlife: { name: 'Illinois DNR', phone: '217-782-6431' }, url: 'https://dnr.illinois.gov' },
+      { code: 'IN', name: 'Indiana', wildlife: { name: 'Indiana DNR', phone: '317-232-4200' }, url: 'https://www.in.gov/dnr' },
+      { code: 'IA', name: 'Iowa', wildlife: { name: 'Iowa DNR', phone: '515-725-8200' }, url: 'https://www.iowadnr.gov' },
+      { code: 'KS', name: 'Kansas', wildlife: { name: 'Kansas Dept. of Wildlife & Parks', phone: '785-296-2281' }, url: 'https://ksoutdoors.gov' },
+      { code: 'KY', name: 'Kentucky', wildlife: { name: 'Kentucky Fish & Wildlife', phone: '800-252-5378' }, highway: { name: 'Kentucky road information', phone: null, web: 'https://goky.ky.gov', note: 'Kentucky retired its 511 phone line. Use GoKY online, or 911 if it is a hazard.' }, url: 'https://fw.ky.gov' },
+      { code: 'LA', name: 'Louisiana', wildlife: { name: 'LA Dept. of Wildlife & Fisheries', phone: '800-442-2511' }, url: 'https://www.wlf.louisiana.gov' },
+      { code: 'ME', name: 'Maine', wildlife: { name: 'Maine Inland Fisheries & Wildlife', phone: '207-287-8000' }, url: 'https://www.maine.gov/ifw' },
+      { code: 'MD', name: 'Maryland', wildlife: { name: 'Maryland DNR', phone: '410-260-8367' }, url: 'https://dnr.maryland.gov' },
+      { code: 'MA', name: 'Massachusetts', wildlife: { name: 'MassWildlife', phone: '508-389-6300' }, url: 'https://www.mass.gov/masswildlife' },
+      { code: 'MI', name: 'Michigan', wildlife: { name: 'Michigan DNR', phone: '517-284-9453' }, url: 'https://www.michigan.gov/dnr' },
+      { code: 'MN', name: 'Minnesota', wildlife: { name: 'Minnesota DNR', phone: '888-646-6367' }, url: 'https://www.dnr.state.mn.us' },
+      { code: 'MS', name: 'Mississippi', wildlife: { name: 'Mississippi Wildlife, Fisheries & Parks', phone: '601-432-2400' }, url: 'https://www.mdwfp.com' },
+      { code: 'MO', name: 'Missouri', wildlife: { name: 'Missouri Dept. of Conservation', phone: '573-522-4115' }, url: 'https://mdc.mo.gov' },
+      { code: 'MT', name: 'Montana', wildlife: { name: 'Montana Fish, Wildlife & Parks', phone: '406-444-2535' }, url: 'https://fwp.mt.gov' },
+      { code: 'NE', name: 'Nebraska', wildlife: { name: 'Nebraska Game & Parks', phone: '402-471-0641' }, url: 'https://outdoornebraska.gov' },
+      { code: 'NV', name: 'Nevada', wildlife: { name: 'Nevada Dept. of Wildlife', phone: '775-688-1500' }, url: 'https://www.ndow.org' },
+      { code: 'NH', name: 'New Hampshire', wildlife: { name: 'NH Fish & Game, law enforcement', phone: '603-271-3127' }, url: 'https://www.wildlife.nh.gov' },
+      { code: 'NJ', name: 'New Jersey', wildlife: { name: 'NJ DEP Hotline', phone: '877-927-6337', note: '877-WARN-DEP, for wildlife that is sick or died for no apparent reason.' }, url: 'https://dep.nj.gov/njfw' },
+      { code: 'NM', name: 'New Mexico', wildlife: { name: 'NM Dept. of Game & Fish', phone: '888-248-6866' }, url: 'https://wildlife.dgf.nm.gov' },
+      { code: 'NY', name: 'New York', wildlife: { name: 'NYSDEC Wildlife Health Unit', phone: '518-478-2203', note: 'After hours, Environmental Conservation Officer dispatch: 1-844-332-3267.' }, url: 'https://dec.ny.gov/nature/wildlife-health/reporting-dead-wildlife' },
+      { code: 'NC', name: 'North Carolina', wildlife: { name: 'NC Wildlife Resources Commission', phone: '919-707-0040' }, url: 'https://www.ncwildlife.gov' },
+      { code: 'ND', name: 'North Dakota', wildlife: { name: 'North Dakota Game & Fish', phone: '701-328-6300' }, url: 'https://gf.nd.gov' },
+      { code: 'OH', name: 'Ohio', wildlife: { name: 'ODNR Division of Wildlife', phone: '800-945-3543', note: '1-800-WILDLIFE.' }, url: 'https://ohiodnr.gov' },
+      { code: 'OK', name: 'Oklahoma', wildlife: { name: 'OK Dept. of Wildlife Conservation', phone: '405-521-3851' }, url: 'https://www.wildlifedepartment.com' },
+      { code: 'OR', name: 'Oregon', wildlife: { name: 'Oregon Dept. of Fish & Wildlife', phone: '800-720-6339' }, url: 'https://myodfw.com' },
+      { code: 'PA', name: 'Pennsylvania', wildlife: { name: 'PA Game Commission', phone: '833-742-4868', note: '1-833-PGC-WILD.' }, highway: { name: 'PennDOT', phone: '800-349-7623', note: '1-800-FIX-ROAD, for state roads.' }, url: 'https://www.pa.gov/agencies/pgc' },
+      { code: 'RI', name: 'Rhode Island', wildlife: { name: 'RI DEM Fish & Wildlife', phone: '401-789-0281' }, url: 'https://dem.ri.gov' },
+      { code: 'SC', name: 'South Carolina', wildlife: { name: 'South Carolina DNR', phone: '803-734-3886' }, url: 'https://www.dnr.sc.gov' },
+      { code: 'SD', name: 'South Dakota', wildlife: { name: 'SD Game, Fish & Parks', phone: '605-223-7660' }, url: 'https://gfp.sd.gov' },
+      { code: 'TN', name: 'Tennessee', wildlife: { name: 'Tennessee Wildlife Resources Agency', phone: '615-781-6622', note: 'Toll free: 1-800-624-7406.' }, url: 'https://www.tn.gov/twra' },
+      { code: 'TX', name: 'Texas', wildlife: { name: 'Texas Parks & Wildlife', phone: '800-792-1112' }, highway: { name: 'TxDOT', phone: '800-558-9368', note: 'Texas retired its 511 phone line. TxDOT covers state highways only, not city or county roads.' }, url: 'https://tpwd.texas.gov' },
+      { code: 'UT', name: 'Utah', wildlife: { name: 'Utah Division of Wildlife Resources', phone: '801-538-4700' }, url: 'https://wildlife.utah.gov' },
+      { code: 'VT', name: 'Vermont', wildlife: { name: 'Vermont Fish & Wildlife', phone: '802-828-1000' }, url: 'https://vtfishandwildlife.com' },
+      { code: 'VA', name: 'Virginia', wildlife: { name: 'Virginia Dept. of Wildlife Resources', phone: '804-367-1000' }, url: 'https://dwr.virginia.gov' },
+      { code: 'WA', name: 'Washington', wildlife: { name: 'WDFW reporting line', phone: '877-933-9847', note: '1-877-WDFW-TIP.' }, highway: { name: 'Washington road information', phone: null, web: 'https://wsdot.com/travel/real-time/', note: 'Washington deactivated its 511 phone line in 2023. Use the WSDOT site or app, or 911 if it is a hazard.' }, url: 'https://wdfw.wa.gov' },
+      { code: 'WV', name: 'West Virginia', wildlife: { name: 'West Virginia DNR', phone: '304-558-6200' }, url: 'https://wvdnr.gov' },
+      { code: 'WI', name: 'Wisconsin', wildlife: { name: 'Wisconsin DNR', phone: '888-936-7463' }, url: 'https://dnr.wisconsin.gov' },
+      { code: 'WY', name: 'Wyoming', wildlife: { name: 'Wyoming Game & Fish', phone: '307-777-4600' }, url: 'https://wgfd.wyo.gov' }
+    ]
+  },
+
+  ca: {
+    name: 'Canada',
+    regionLabel: 'Province or territory',
+    emergency: { name: 'Emergency services', phone: '911' },
+    lines: {
+      city: { name: 'Your municipality', phone: '311', note: '311 reaches the municipal line in most Canadian cities. Municipal public works collects from city streets.' },
+      pet: { name: 'Municipal animal services', phone: '311' },
+      health: { name: 'Public health, via your municipal line', phone: '311' },
+      bat: { name: 'Your regional public health unit, via your municipal line', phone: '311', note: 'Ask for the rabies desk. If anyone may have touched the bat, contact a doctor the same day — Canada follows the same post-exposure rules.' },
+      highway: { name: 'Provincial road information', phone: '511', note: '511 is the road information line in most provinces. If a carcass is blocking a lane, call 911.' }
+    },
+    national: [
+      { name: 'Canadian Wildlife Health Cooperative', phone: null, web: 'http://www.cwhc-rcsf.ca', note: 'Coordinates wildlife disease surveillance nationally; reports go through the provincial contacts below.' }
+    ],
+    regions: [
+      { code: 'AB', name: 'Alberta', wildlife: { name: 'Report A Poacher', phone: '800-642-3800', note: 'Also the line for wildlife concerns.' }, highway: { name: '511 Alberta', phone: '511', note: 'From outside Alberta: 1-855-391-9743. Carcasses on provincial highways are reported here.' }, url: 'https://www.alberta.ca/animal-vehicle-collision-safety-program' },
+      { code: 'BC', name: 'British Columbia', wildlife: { name: 'Report All Poachers and Polluters (RAPP)', phone: '877-952-7277', note: '24/7. BC advises reporting dead deer and other wildlife to local public works, road maintenance or animal control for removal.' }, url: 'https://www2.gov.bc.ca/gov/content/environment/plants-animals-ecosystems/wildlife/wildlife-conservation/wildlife-health/what-to-do-if-you-find-sick-injured-or-dead-wildlife' },
+      { code: 'MB', name: 'Manitoba', wildlife: { name: 'Turn in Poachers (TIP)', phone: '800-782-0076', note: '24 hours.' }, url: 'https://residents.gov.mb.ca' },
+      { code: 'NB', name: 'New Brunswick', wildlife: { name: 'Dept. of Natural Resources and Energy Development', phone: '833-301-0334' }, url: 'https://www2.gnb.ca' },
+      { code: 'NL', name: 'Newfoundland and Labrador', url: 'https://www.gov.nl.ca' },
+      { code: 'NS', name: 'Nova Scotia', wildlife: { name: 'Natural Resources and Renewables', phone: '800-565-2224' }, url: 'https://novascotia.ca' },
+      { code: 'NT', name: 'Northwest Territories', url: 'https://www.gov.nt.ca' },
+      { code: 'NU', name: 'Nunavut', url: 'https://www.gov.nu.ca' },
+      { code: 'ON', name: 'Ontario', wildlife: { name: 'MNR TIPS', phone: '877-847-7667' }, highway: { name: '511 Ontario', phone: '511', note: 'Carcasses on 400-series highways and the QEW are the Ministry of Transportation’s; city expressways are the city’s.' }, url: 'https://www.ontario.ca' },
+      { code: 'PE', name: 'Prince Edward Island', url: 'https://www.princeedwardisland.ca' },
+      { code: 'QC', name: 'Quebec', highway: { name: 'Québec 511', phone: '511' }, url: 'https://www.quebec.ca' },
+      { code: 'SK', name: 'Saskatchewan', wildlife: { name: 'Turn in Poachers and Polluters (TIPP)', phone: '800-667-7561' }, url: 'https://www.saskatchewan.ca' },
+      { code: 'YT', name: 'Yukon', url: 'https://yukon.ca' }
+    ]
+  },
+
+  uk: {
+    name: 'United Kingdom',
+    regionLabel: 'Nation',
+    emergency: { name: 'Emergency services', phone: '999' },
+    lines: {
+      city: UK_COUNCIL,
+      pet: UK_COUNCIL,
+      health: UK_COUNCIL,
+      bat: { name: 'NHS 111', phone: '111', note: 'All UK bats are legally protected and must not be handled. If anyone has touched a bat or been scratched, call 111 the same day — UK bats can carry a rabies-related lyssavirus. For the carcass itself, contact your council.' },
+      highway: { name: 'Police non-emergency', phone: '101', note: 'If a carcass is a hazard to road users, 101 can arrange traffic control. 999 if it is causing immediate danger.' }
+    },
+    national: [
+      { name: 'Defra — dead wild birds (avian influenza)', phone: '03459 33 55 77', note: 'Report dead wild birds here. Do not handle them.' },
+      { name: 'Report a dead animal (GOV.UK)', phone: null, web: 'https://www.gov.uk/report-dead-animal', note: 'Finds your council by postcode.' }
+    ],
+    regions: [
+      { code: 'ENG', name: 'England', wildlife: { name: 'RSPCA', phone: '0300 1234 999', note: 'For injured wildlife and animal welfare concerns.' }, highway: { name: 'National Highways', phone: '0300 123 5000', note: 'Motorways and major A roads in England. Other roads are the local council’s.' }, url: 'https://www.gov.uk/report-dead-animal' },
+      { code: 'SCT', name: 'Scotland', wildlife: { name: 'Scottish SPCA', phone: '03000 999 999' }, highway: { name: 'Traffic Scotland trunk road line', phone: '0800 028 1414' }, url: 'https://www.scottishspca.org' },
+      { code: 'WLS', name: 'Wales', wildlife: { name: 'RSPCA', phone: '0300 1234 999' }, highway: { name: 'Traffic Wales', phone: '0300 123 1213', note: 'Motorways and trunk roads in Wales.' }, url: 'https://traffic.wales/report-issue' },
+      { code: 'NIR', name: 'Northern Ireland', wildlife: { name: 'USPCA', phone: '028 3025 1000' }, url: 'https://www.uspca.co.uk' }
+    ]
+  },
+
+  au: {
+    name: 'Australia',
+    regionLabel: 'State or territory',
+    emergency: { name: 'Emergency services', phone: '000' },
+    lines: {
+      city: { name: 'Your local council', phone: null, web: 'https://www.directory.gov.au/', note: 'Councils collect dead animals from council roads and public land. The Australian Government Directory lists every council.' },
+      pet: { name: 'Your local council', phone: null, web: 'https://www.directory.gov.au/', note: 'Councils handle stray and owned animals, including microchip scanning.' },
+      health: { name: 'Emergency Animal Disease Hotline', phone: '1800 675 888' },
+      bat: { name: 'Wildlife Rescue Australia', phone: '1300 596 457', note: 'Australian bats can carry Australian bat lyssavirus. Only vaccinated, trained handlers may touch a bat. If anyone has been bitten or scratched, wash the wound and seek medical advice immediately — treatment is time-critical.' },
+      highway: { name: 'Your state road authority', phone: null, web: 'https://www.directory.gov.au/', note: 'State-classified roads belong to the state road authority; everything else is the council’s.' }
+    },
+    national: [
+      { name: 'Emergency Animal Disease Hotline', phone: '1800 675 888', note: 'National, 24/7. Use for sick or dead wildlife that may carry disease, including suspected H5 bird flu.' },
+      { name: 'Wildlife Rescue Australia', phone: '1300 596 457', note: '24-hour call centre that finds a rescuer near you.' }
+    ],
+    regions: [
+      { code: 'NSW', name: 'New South Wales', wildlife: { name: 'WIRES', phone: '1300 094 737', note: '24/7 rescue advice.' }, highway: { name: 'Transport for NSW', phone: '131 700', note: 'For state-classified roads.' }, city: { name: 'Find your local council (NSW OLG)', phone: null, web: 'https://www.olg.nsw.gov.au/public/find-your-local-council' }, url: 'https://www.wires.org.au' },
+      { code: 'VIC', name: 'Victoria', wildlife: { name: 'Wildlife Victoria', phone: '03 8400 7300', note: '24/7.' }, highway: { name: 'VicRoads', phone: '13 11 71' }, city: { name: 'Know Your Council (Victoria)', phone: null, web: 'https://www.vic.gov.au/know-your-council' }, url: 'https://wildlifevictoria.org.au' },
+      { code: 'QLD', name: 'Queensland', wildlife: { name: 'Queensland Parks and Wildlife Service', phone: '1300 130 372', note: 'RSPCA Queensland for injured animals: 1300 264 625.' }, highway: { name: 'QLDTraffic', phone: '13 19 40', note: '24/7, for hazards on major Queensland roads.' }, city: { name: 'Queensland Government (13 QGOV)', phone: '13 74 68', note: 'Routes you to your council. Weekdays only.' }, url: 'https://www.qld.gov.au/environment/plants-animals/reporting' },
+      { code: 'WA', name: 'Western Australia', wildlife: { name: 'Wildcare Helpline', phone: '08 9474 9055' }, highway: { name: 'Main Roads WA', phone: '138 138' }, city: { name: 'Local Government Directory (WALGA)', phone: null, web: 'https://walga.asn.au/your-local-government/local-government-directory' }, url: 'https://www.mainroads.wa.gov.au' },
+      { code: 'SA', name: 'South Australia', wildlife: { name: 'Fauna Rescue South Australia', phone: '08 8289 0896' }, highway: { name: 'Department for Infrastructure and Transport', phone: '1800 018 313', note: 'For road hazards and incidents.' }, city: { name: 'Find your council (LGA South Australia)', phone: null, web: 'https://www.lga.sa.gov.au/sa-councils/councils-listing' }, url: 'https://faunarescue.org.au' },
+      { code: 'TAS', name: 'Tasmania', wildlife: { name: 'Wildlife Management Branch', phone: '1300 827 727', note: 'Bonorong Wildlife Rescue: 0447 264 625.' }, highway: { name: 'Transport Services Tasmania', phone: '1300 139 933', note: 'Select menu item 2 to report a road hazard.' }, url: 'https://nre.tas.gov.au' },
+      { code: 'ACT', name: 'Australian Capital Territory', wildlife: { name: 'RSPCA ACT', phone: '02 6287 8100', note: 'ACT Wildlife: 0432 300 033.' }, highway: { name: 'Access Canberra', phone: '13 22 81' }, city: { name: 'Access Canberra', phone: '13 22 81', note: 'The ACT has no separate councils — Access Canberra is the service.' }, url: 'https://rspca-act.org.au' },
+      { code: 'NT', name: 'Northern Territory', highway: { name: 'NT road report', phone: '1800 246 199', note: 'Freecall, for road conditions and urgent road faults.' }, url: 'https://nt.gov.au' }
+    ]
+  }
+};
+
+/* Resolution ------------------------------------------------------------- */
+
+function getRegion(countryId, regionCode) {
+  const c = JURISDICTIONS[countryId];
+  if (!c) return null;
+  return c.regions.find((r) => r.code === regionCode) || null;
+}
+
+/* Returns the best contact for a routing line, most specific first:
+   region override → country default → null. */
+function contactFor(countryId, regionCode, line) {
+  const country = JURISDICTIONS[countryId];
+  if (!country) return null;
+  const region = getRegion(countryId, regionCode);
+  if (region && region[line]) return { ...region[line], scope: 'region' };
+  /* No country has a single national wildlife line, so a region without one
+     falls back to the municipal line: parks and public land are managed
+     locally almost everywhere, and a usable number beats a dead end. */
+  if (line === 'wildlife') return country.lines.city ? { ...country.lines.city, scope: 'country' } : null;
+  const base = country.lines[line] || (line === 'bat' ? country.lines.health : null);
+  return base ? { ...base, scope: 'country' } : null;
+}
+
+</script>
+<script>
+/* safety.js — handling guidance drawn from published animal-control and
+   public-health advice: CDC rabies guidance, NYSDOT's carcass handling
+   procedure, Colorado CDPHE carcass disposal guidance, and USDA APHIS
+   wildlife carcass disposal. The consistent instruction across all of them
+   is the same: treat every carcass as infected and do not use bare hands. */
+
+const HANDLING = {
+  title: 'If you have to be near it at all',
+  points: [
+    'Treat every carcass as infected. Agencies assume this by default, and so should you.',
+    'Never bare hands. Rubber or nitrile gloves, and public-health guidance recommends double-gloving.',
+    'Do not lift it by hand — use a long-handled tool, a shovel, and long sleeves.',
+    'Confirm it is dead by prodding with a long-handled tool first, from a distance.',
+    'Keep pets away entirely. They investigate carcasses, and that is how disease moves to your household.',
+    'Wash your hands thoroughly with soap and water afterwards, even if you wore gloves.',
+    'Disinfect any tool that touched it: one part bleach to nine parts water.'
+  ]
+};
+
+const DO_NOT_TOUCH = {
+  title: 'Do not touch it at all if',
+  points: [
+    'It is a bat — no exceptions, see below.',
+    'It is a rabies vector species: raccoon, skunk, fox, coyote.',
+    'It looks diseased — patchy fur, visible tumours, unusual discharge.',
+    'There are several dead animals in one place. That is a disease or poisoning signal and the agency needs to see it undisturbed.',
+    'It is on a live roadway. Nothing here is worth stepping into traffic for.'
+  ]
+};
+
+/* The bat protocol is separated out because it is the one case where the
+   wrong move — binning it — destroys the evidence a rabies decision needs. */
+const BAT_PROTOCOL = {
+  title: 'Bats: the rabies protocol',
+  points: [
+    'Do not touch it, and do not hit or crush it. Damage to the head makes rabies testing impossible, and testing is what decides whether anyone needs treatment.',
+    'A bat found in a room where somebody was asleep, or with an unattended child, counts as a possible exposure even with no visible bite — bat bites can be too small to see or feel.',
+    'Do not throw it away. Public health may need to test it.',
+    'If any person or pet may have had contact, call your health department and seek medical advice the same day. Rabies is preventable before symptoms start and effectively untreatable after.'
+  ]
+};
+
+const DISPOSAL = {
+  title: 'If the agency tells you to handle it yourself',
+  points: [
+    'Ask them first. Requirements differ, and for a rabies vector species the answer may be no.',
+    'Small animals — birds, rodents, rabbits — are usually double-bagged in sturdy plastic and put in household waste, but only where your waste collector allows it.',
+    'Never put a bat, or any animal a person or pet may have touched, in the bin before public health has answered.',
+    'Do not burn or bury it without checking local rules first.'
+  ]
+};
+
+/* Extra cautions keyed to the animal's own risk profile. */
+const RABIES_VECTORS = ['raccoon', 'skunk', 'fox', 'coyote', 'bat'];
+
+function cautionsFor(animal, countryId) {
+  const out = [];
+  if (animal.id === 'bat') out.push(BAT_PROTOCOL);
+  else if (RABIES_VECTORS.indexOf(animal.id) !== -1) {
+    out.push({
+      title: 'This is a rabies vector species',
+      points: [
+        'Report it rather than remove it. Animal control guidance treats these species as rabies suspects by default.',
+        'Do not touch it even with gloves, and do not let a pet near it — a pet that contacts a rabid carcass may need a booster or quarantine.',
+        'If any person or pet has already had contact, say so on the call and speak to a doctor or vet the same day.',
+        'If it is on your property and you are told to dispose of it yourself, ask specifically whether that still applies to a rabies vector species.'
+      ]
+    });
+  }
+  if (animal.id === 'crow' || animal.id === 'pigeon') {
+    out.push({
+      title: 'Dead birds are watched for disease',
+      points: [
+        'Several dead birds in one place is a reportable event, not just a mess — say how many you can see.',
+        'Keep cats and dogs well away from bird carcasses; avian influenza has moved to mammals through them.',
+        countryId === 'us'
+          ? 'In the US, unusual bird die-offs go to APHIS on 1-866-536-7593 as well as your local line.'
+          : countryId === 'uk'
+            ? 'In the UK, report dead wild birds to Defra on 03459 33 55 77.'
+            : countryId === 'au'
+              ? 'In Australia, report to the Emergency Animal Disease Hotline on 1800 675 888.'
+              : 'Report unusual bird die-offs to your national animal health line as well as your local one.'
+      ]
+    });
+  }
+  if (animal.id === 'snake') {
+    out.push({
+      title: 'A dead snake can still bite',
+      points: [
+        'The bite reflex outlives the animal and can persist for up to an hour. Never handle the head.',
+        'Photograph it from a safe distance rather than moving it — identification matters if anyone was bitten.'
+      ]
+    });
+  }
+  if (countryId === 'au' && ['deer', 'dog', 'cat'].indexOf(animal.id) === -1) {
+    out.push({
+      title: 'In Australia, check for a joey',
+      points: [
+        'If the animal is a marsupial, a joey may still be alive in the pouch or nearby after the mother has died.',
+        'Do not open the pouch yourself unless you have been talked through it — call the wildlife rescue line first and follow what they tell you.',
+        'Only approach if it is safe to leave the roadway.'
+      ]
+    });
+  }
+  return out;
+}
+
+</script>
+<script>
+/* routing.js — decides which agency handles a given carcass.
+   The answer depends on two things: what the animal is (disease and
+   protected-species rules) and whose land it is lying on (jurisdiction).
+   Animal rules win over location rules, because a rabies exposure is
+   urgent regardless of which side of a kerb it happened on.
+
+   `line` names the primary contact to resolve against the selected
+   jurisdiction; `also` names secondary contacts worth showing. */
+
+const LOCATIONS = [
+  { id: 'street', label: 'City street or sidewalk', hint: 'A public road inside a town or city' },
+  { id: 'highway', label: 'Highway or motorway', hint: 'A state, provincial or trunk route, or its shoulder' },
+  { id: 'yard', label: 'Private property', hint: 'Your yard, driveway, or a building you own' },
+  { id: 'park', label: 'Park, trail or waterway', hint: 'Public green space or open water' }
+];
+
+function routeFor(animal, locationId) {
+  /* 1. Animal-driven rules that override jurisdiction. */
+  if (animal.report === 'bat') {
+    return {
+      agency: 'Public health',
+      urgency: 'urgent',
+      why: 'Bats are the leading source of rabies in human cases. Health departments test the animal, so the carcass must be preserved rather than binned.',
+      line: 'bat', also: ['wildlife'],
+      say: [
+        'That you have found a dead bat and exactly where it is',
+        'Whether any person or pet may have touched it',
+        'Whether it was in a room where somebody was sleeping, or with a young child',
+        'That you have not disposed of it and can keep it for testing'
+      ]
+    };
+  }
+
+  if (animal.report === 'health') {
+    return {
+      agency: 'Public health or vector control',
+      urgency: locationId === 'yard' ? 'normal' : 'prompt',
+      why: 'Rodents and birds are tracked for disease. Several dead animals in one place is a surveillance signal, not just a cleanup job.',
+      line: 'health', also: ['wildlife'],
+      say: [
+        'How many animals you can see — the count is the important part',
+        'The species, if you are confident',
+        'Whether there is standing water or an obvious food source nearby',
+        'Whether children or pets have access to the spot'
+      ]
+    };
+  }
+
+  if (animal.report === 'pet') {
+    return {
+      agency: 'Animal control or the municipal shelter',
+      urgency: 'prompt',
+      why: 'They scan for a microchip and contact the owner. A quick call is often the only way a family ever finds out what happened.',
+      line: 'pet', also: [],
+      say: [
+        'The exact street location',
+        'Breed, colour, and size',
+        'Whether it is wearing a collar, tag or harness',
+        'Ask them to scan for a microchip'
+      ]
+    };
+  }
+
+  /* 2. Location-driven rules for wildlife and general carcasses. */
+  if (locationId === 'highway') {
+    return {
+      agency: 'The roads authority for that highway',
+      urgency: animal.size === 'large' ? 'urgent' : 'normal',
+      why: 'Highways are not maintained by the city. The state, provincial or national roads authority runs the crews that can work live traffic lanes safely.',
+      line: 'highway', also: animal.size === 'large' ? ['wildlife'] : [],
+      say: [
+        'The route number and nearest mile marker, exit or junction',
+        'Which direction of travel, and which lane or shoulder',
+        'The approximate size of the animal',
+        'Whether it is currently blocking a lane of traffic'
+      ]
+    };
+  }
+
+  if (locationId === 'yard') {
+    return {
+      agency: 'Your local authority — but expect to be told it is yours',
+      urgency: 'normal',
+      why: 'Most jurisdictions only collect from public land. Many still offer a paid pickup, and the rules change if it is a rabies vector species.',
+      line: 'city', also: animal.risk.level === 'high' ? ['wildlife'] : [],
+      say: [
+        'The species, and that it is on private property',
+        'Ask whether they collect from private land, and whether there is a fee',
+        animal.risk.level === 'high'
+          ? 'That it is a rabies vector species — ask whether that changes the answer'
+          : 'Whether they can advise on safe disposal',
+        'Ask what container or bagging they require if you must do it yourself'
+      ]
+    };
+  }
+
+  if (locationId === 'park') {
+    return {
+      agency: 'The parks authority or the wildlife agency',
+      urgency: 'normal',
+      why: 'Wildlife on public green space is usually the land manager’s, escalated to the wildlife agency when the species is protected or the death looks like disease.',
+      line: 'wildlife', also: ['city'],
+      say: [
+        'The species and rough size',
+        'The nearest path, gate or landmark',
+        'Whether it looks diseased, or whether there is more than one',
+        'Whether it is near water or a play area'
+      ]
+    };
+  }
+
+  if (animal.size === 'large' || animal.report === 'wildlife') {
+    return {
+      agency: animal.size === 'large'
+        ? 'Your local authority, with the wildlife agency as backup'
+        : 'Animal control or public works',
+      urgency: animal.size === 'large' ? 'prompt' : 'normal',
+      why: animal.size === 'large'
+        ? 'Large carcasses need equipment, and often a wildlife officer where the animal is a protected or game species.'
+        : 'Wildlife on public land is normally a municipal pickup, escalated to the wildlife agency if the species is protected.',
+      line: 'city', also: ['wildlife'],
+      say: [
+        'The species and rough size',
+        'The nearest street address or landmark',
+        'Whether it is a traffic or pedestrian hazard where it lies',
+        'How long it looks to have been there'
+      ]
+    };
+  }
+
+  return {
+    agency: 'Public works or sanitation',
+    urgency: 'normal',
+    why: 'Small animals on public land are a routine street-cleaning job in most places.',
+    line: 'city', also: [],
+    say: [
+      'The species and the nearest street address',
+      'Whether it is on the road, the verge or the footpath',
+      'Whether it is near a storm drain or a school route',
+      'A reference number for your report, so you can chase it'
+    ]
+  };
+}
+
+const EMERGENCY_RULE = {
+  title: 'Call the emergency number instead when',
+  points: [
+    'The carcass is blocking a live traffic lane and cars are swerving',
+    'The animal is not dead — it is injured and moving',
+    'Someone has been bitten or scratched, or has handled a bat',
+    'A large animal is down on a highway at night'
+  ]
+};
+
+</script>
+<script>
+/* app.js — grid, search, jurisdiction resolution, and the detail sheet.
+   Vanilla, no build step. */
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+const state = { q: '', size: 'all', openId: null, location: 'street', country: 'us', region: null };
+
+/* Single-file builds set this to false: there is no images/ directory to
+   fall back from, so the photo overlay is omitted rather than 404ing. */
+const PHOTOS = window.DAR_PHOTOS !== false;
+const photoTag = (id, lazy) => PHOTOS
+  ? `<img class="photo" src="images/${id}.jpg" alt=""${lazy ? ' loading="lazy"' : ''}
+       onerror="this.remove()" onload="this.classList.add('is-on')">`
+  : '';
+
+/* ---------- persistence ---------- */
+
+const NUM_KEY = 'dar.numbers.v1';
+const JUR_KEY = 'dar.jurisdiction.v1';
+
+let numbers = {};
+try { numbers = JSON.parse(localStorage.getItem(NUM_KEY) || '{}'); } catch (_) { numbers = {}; }
+try {
+  const saved = JSON.parse(localStorage.getItem(JUR_KEY) || 'null');
+  if (saved && JURISDICTIONS[saved.country]) {
+    state.country = saved.country;
+    if (getRegion(saved.country, saved.region)) state.region = saved.region;
+  }
+} catch (_) { /* ignore */ }
+
+const save = (key, value) => {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) { /* private mode */ }
+};
+
+/* ---------- contact resolution ----------
+   A number the user saved always wins; then the region; then the country. */
+
+const OVERRIDE_KEY = { city: 'city', pet: 'animal', health: 'health', bat: 'health', highway: 'highway', wildlife: 'wildlife' };
+
+function resolveLine(line) {
+  const override = numbers[OVERRIDE_KEY[line]];
+  if (override) return { name: 'Your saved number', phone: override, saved: true };
+  return contactFor(state.country, state.region, line);
+}
+
+const telHref = (n) => 'tel:' + String(n).replace(/[^0-9+*#]/g, '');
+
+/* The saved-number fields are the only text a user contributes, and they are
+   rendered into innerHTML. Escaping keeps a pasted angle bracket inert. */
+const escHTML = (v) => String(v).replace(/[&<>"']/g, (c) =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const country = () => JURISDICTIONS[state.country];
+
+function emergencyNumber() { return country().emergency.phone; }
+
+/* ---------- jurisdiction UI ---------- */
+
+function renderJurisdiction() {
+  const c = country();
+
+  $('#country').innerHTML = Object.entries(JURISDICTIONS)
+    .map(([id, j]) => `<option value="${id}" ${id === state.country ? 'selected' : ''}>${j.name}</option>`).join('');
+
+  $('#region-label').textContent = c.regionLabel;
+  $('#region').innerHTML = `<option value="">Select your ${c.regionLabel.toLowerCase()}…</option>` +
+    c.regions.map((r) => `<option value="${r.code}" ${r.code === state.region ? 'selected' : ''}>${r.name}</option>`).join('');
+
+  const region = getRegion(state.country, state.region);
+  const emergency = emergencyNumber();
+  $('#juris-note').innerHTML = region
+    ? `Emergency number here is <a href="${telHref(emergency)}">${emergency}</a>. Numbers for ${region.name} were compiled from official sources in ${COMPILED} — <a href="${region.url}" target="_blank" rel="noopener">check the agency page</a> if one looks wrong.`
+    : `Emergency number here is <a href="${telHref(emergency)}">${emergency}</a>. Pick your ${c.regionLabel.toLowerCase()} to get the agency numbers for where you are.`;
+
+  $('#emergency-link').textContent = emergency;
+  $('#emergency-link').href = telHref(emergency);
+
+  const nat = c.national || [];
+  $('#numbers-hint').innerHTML = nat.length
+    ? 'National lines for ' + c.name + ': ' + nat.map((n) =>
+        n.phone ? `<strong>${n.name}</strong> <a href="${telHref(n.phone)}">${n.phone}</a>`
+                : `<strong>${n.name}</strong> <a href="${n.web}" target="_blank" rel="noopener">online</a>`).join(' · ')
+    : '';
+}
+
+/* ---------- cards ---------- */
+
+function cardHTML(a) {
+  return `<button class="card" data-id="${a.id}" aria-label="${a.name} — open reporting steps">
+    <span class="art">
+      ${renderAnimal(a)}
+      ${photoTag(a.id, true)}
+    </span>
+    <span class="card-body">
+      <span class="card-head">
+        <strong>${a.name}</strong>
+        <span class="size size-${a.size}">${a.size}</span>
+      </span>
+      <span class="aka">${a.aka}</span>
+      <span class="mark">${a.marks[0]}</span>
+    </span>
+  </button>`;
+}
+
+function matches(a) {
+  if (state.size !== 'all' && a.size !== state.size) return false;
+  const q = state.q.trim().toLowerCase();
+  if (!q) return true;
+  const hay = [a.name, a.aka, a.size, a.length, a.confuse, ...a.marks].join(' ').toLowerCase();
+  return q.split(/\s+/).every((w) => hay.includes(w));
+}
+
+function renderGrid() {
+  const list = ANIMALS.filter(matches);
+  $('#grid').innerHTML = list.map(cardHTML).join('');
+  $('#empty').hidden = list.length > 0;
+  $('#count').textContent = list.length === ANIMALS.length
+    ? `${ANIMALS.length} animals`
+    : `${list.length} of ${ANIMALS.length} animals`;
+}
+
+/* ---------- guidance blocks ---------- */
+
+const blockHTML = (b) => `<section class="block">
+    <h3>${b.title}</h3>
+    <ul>${b.points.map((p) => `<li>${p}</li>`).join('')}</ul>
+  </section>`;
+
+function renderGuidance() {
+  $('#guidance-grid').innerHTML = [HANDLING, DO_NOT_TOUCH, BAT_PROTOCOL, DISPOSAL].map(blockHTML).join('');
+}
+
+/* ---------- detail sheet ---------- */
+
+function contactHTML(contact, primary) {
+  if (!contact) return '';
+  const label = contact.phone ? `Call ${escHTML(contact.phone)}` : 'Open the official page';
+  const href = contact.phone ? telHref(contact.phone) : (contact.web || '#');
+  const attrs = contact.phone ? '' : ' target="_blank" rel="noopener"';
+  if (!primary) {
+    return `<li><strong>${contact.name}</strong>
+      ${contact.phone ? `<a href="${href}">${escHTML(contact.phone)}</a>` : `<a href="${href}"${attrs}>official page</a>`}
+      ${contact.note ? `<em>${contact.note}</em>` : ''}</li>`;
+  }
+  return `<h4>${contact.name}</h4>
+    <a class="dial" href="${href}"${attrs}>${label}</a>
+    ${contact.note ? `<p class="dial-note">${contact.note}</p>` : ''}
+    ${contact.saved ? '<p class="dial-note">Using the number you saved on this page.</p>' : ''}`;
+}
+
+function sheetHTML(a) {
+  const route = routeFor(a, state.location);
+  const primary = resolveLine(route.line);
+  const same = (a, b) => a && b && (a.phone || a.web) === (b.phone || b.web) && a.name === b.name;
+  const secondary = (route.also || []).map(resolveLine)
+    .filter((c, i, arr) => c && !same(c, primary) && arr.findIndex((o) => same(o, c)) === i);
+  const region = getRegion(state.country, state.region);
+  const cautions = cautionsFor(a, state.country);
+  const emergency = emergencyNumber();
+
+  return `
+  <button class="close" data-close aria-label="Close">&times;</button>
+
+  <div class="sheet-top">
+    <span class="art art-lg">
+      ${renderAnimal(a)}
+      ${photoTag(a.id, false)}
+    </span>
+    <div>
+      <h2 id="sheet-title">${a.name}</h2>
+      <p class="aka">${a.aka} · ${a.length}</p>
+      <p class="risk risk-${a.risk.level}">
+        <strong>${a.risk.level === 'high' ? 'Handle with care' : a.risk.level === 'medium' ? 'Take precautions' : 'Lower risk'}</strong>
+        ${a.risk.text}
+      </p>
+    </div>
+  </div>
+
+  <div class="cols">
+    <section>
+      <h3>Check these marks</h3>
+      <ul class="marks">${a.marks.map((m) => `<li>${m}</li>`).join('')}</ul>
+      <p class="confuse"><strong>Often confused with:</strong> ${a.confuse}</p>
+    </section>
+
+    <section>
+      <h3>Where did you find it?</h3>
+      <div class="locs" role="group" aria-label="Location">
+        ${LOCATIONS.map((l) => `
+          <button class="loc ${l.id === state.location ? 'is-on' : ''}" data-loc="${l.id}">
+            <strong>${l.label}</strong><em>${l.hint}</em>
+          </button>`).join('')}
+      </div>
+
+      <div class="plan urgency-${route.urgency}">
+        <p class="tag">${route.urgency === 'urgent' ? 'Call now' : route.urgency === 'prompt' ? 'Call today' : 'Routine report'}</p>
+        ${primary ? contactHTML(primary, true) : `<h4>${route.agency}</h4>
+          <p class="dial-note">No number on file for this jurisdiction — pick your region above, or save your own below.</p>`}
+        <p class="why">${route.why}</p>
+        ${secondary.length ? `<ul class="also"><li class="also-head">Also worth calling</li>${secondary.map((c) => contactHTML(c, false)).join('')}</ul>` : ''}
+        ${region ? `<p class="dial-note"><a href="${region.url}" target="_blank" rel="noopener">Official page for ${region.name}</a></p>` : ''}
+      </div>
+    </section>
+  </div>
+
+  <div class="bottom">
+    <section>
+      <h3>Have this ready when you call</h3>
+      <ol class="say">${route.say.map((s) => `<li>${s}</li>`).join('')}</ol>
+    </section>
+    <section class="emergency">
+      <h3>${EMERGENCY_RULE.title}</h3>
+      <ul>${EMERGENCY_RULE.points.map((p) => `<li>${p}</li>`).join('')}</ul>
+      <a class="dial dial-emergency" href="${telHref(emergency)}">Call ${emergency}</a>
+    </section>
+  </div>
+
+  <div class="cautions">
+    ${[HANDLING, ...cautions].map(blockHTML).join('')}
+  </div>`;
+}
+
+function openSheet(id) {
+  const a = ANIMALS.find((x) => x.id === id);
+  if (!a) return;
+  state.openId = id;
+  $('#sheet-inner').innerHTML = sheetHTML(a);
+  const dlg = $('#sheet');
+  if (!dlg.open) dlg.showModal();
+  dlg.scrollTop = 0;
+}
+
+function refreshSheet() { if (state.openId) openSheet(state.openId); }
+
+/* ---------- events ---------- */
+
+document.addEventListener('click', (e) => {
+  const card = e.target.closest('.card');
+  if (card) return openSheet(card.dataset.id);
+
+  const loc = e.target.closest('[data-loc]');
+  if (loc) { state.location = loc.dataset.loc; return refreshSheet(); }
+
+  if (e.target.closest('[data-close]')) { $('#sheet').close(); return; }
+
+  const chip = e.target.closest('.chip');
+  if (chip) {
+    state.size = chip.dataset.size;
+    $$('.chip').forEach((c) => c.classList.toggle('is-on', c === chip));
+    return renderGrid();
+  }
+
+  if (e.target.closest('[data-clear]')) {
+    state.q = ''; $('#q').value = '';
+    state.size = 'all';
+    $$('.chip').forEach((c) => c.classList.toggle('is-on', c.dataset.size === 'all'));
+    return renderGrid();
+  }
+});
+
+$('#sheet').addEventListener('click', (e) => {
+  if (e.target.id === 'sheet') $('#sheet').close();   // backdrop
+});
+$('#sheet').addEventListener('close', () => { state.openId = null; });
+
+$('#q').addEventListener('input', (e) => { state.q = e.target.value; renderGrid(); });
+
+$('#country').addEventListener('change', (e) => {
+  state.country = e.target.value;
+  state.region = null;
+  save(JUR_KEY, { country: state.country, region: state.region });
+  renderJurisdiction();
+  renderGuidance();
+  refreshSheet();
+});
+
+$('#region').addEventListener('change', (e) => {
+  state.region = e.target.value || null;
+  save(JUR_KEY, { country: state.country, region: state.region });
+  renderJurisdiction();
+  refreshSheet();
+});
+
+$$('[data-num]').forEach((input) => {
+  const key = input.dataset.num;
+  if (numbers[key]) input.value = numbers[key];
+  input.addEventListener('input', () => {
+    const v = input.value.trim();
+    if (v) numbers[key] = v; else delete numbers[key];
+    save(NUM_KEY, numbers);
+    refreshSheet();
+  });
+});
+
+renderJurisdiction();
+renderGuidance();
+renderGrid();
+
+</script>

@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Found a Dead Animal?</title>
+<meta name="description" content="Identify a dead animal from illustrated field marks, then find out which government agency to call and exactly what to tell them.">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>🐾</text></svg>">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">Public reporting guide</p>
+    <h1>Found a dead animal? <span>Identify it, then call it in.</span></h1>
+    <p class="lede">
+      Who collects the carcass depends on what it is and where it is lying.
+      Find your animal below, tell us where you found it, and this page will
+      tell you which agency to ring and exactly what they will ask you.
+    </p>
+    <div class="safety">
+      <strong>Before anything else:</strong> do not touch it, and keep pets and
+      children away. If it is blocking traffic, someone has been bitten, or the
+      animal is still moving, stop reading and call
+      <a href="tel:911" id="emergency-link">911</a>.
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="juris" aria-label="Where are you?">
+    <div class="juris-row">
+      <label for="country">Country
+        <select id="country"></select>
+      </label>
+      <label for="region"><span id="region-label">State</span>
+        <select id="region"></select>
+      </label>
+    </div>
+    <p class="juris-note" id="juris-note"></p>
+  </section>
+
+  <section class="controls" aria-label="Find your animal">
+    <div class="search">
+      <label for="q" class="sr-only">Search animals</label>
+      <input id="q" type="search" placeholder="Search — try “bushy tail”, “mask”, “bare tail”, “black and white”" autocomplete="off">
+    </div>
+    <div class="filters" role="group" aria-label="Filter by size">
+      <button class="chip is-on" data-size="all">All sizes</button>
+      <button class="chip" data-size="small">Small <em>squirrel or under</em></button>
+      <button class="chip" data-size="medium">Medium <em>cat to raccoon</em></button>
+      <button class="chip" data-size="large">Large <em>dog to deer</em></button>
+    </div>
+    <p class="count" id="count" aria-live="polite"></p>
+  </section>
+
+  <section class="grid" id="grid" aria-label="Animals"></section>
+
+  <p class="empty" id="empty" hidden>
+    No match. Try a plainer description — a colour, the tail, or the ears —
+    or <button class="linkish" data-clear>clear the search</button>.
+    If you truly cannot tell, pick the closest animal; the phone line can
+    identify it from your description.
+  </p>
+
+  <section class="numbers" id="numbers">
+    <h2>Save your local numbers</h2>
+    <p>
+      The numbers below are filled in from your country and region, but the
+      municipal line is always local to you. Anything you enter here overrides
+      what this page suggests, everywhere. Stored in this browser only.
+    </p>
+    <div class="numgrid">
+      <label>City / 311 line
+        <input type="tel" data-num="city" placeholder="311">
+      </label>
+      <label>Animal control
+        <input type="tel" data-num="animal" placeholder="Not set">
+      </label>
+      <label>Public health
+        <input type="tel" data-num="health" placeholder="Not set">
+      </label>
+      <label>Roads authority
+        <input type="tel" data-num="highway" placeholder="Not set">
+      </label>
+      <label>Wildlife agency
+        <input type="tel" data-num="wildlife" placeholder="Not set">
+      </label>
+    </div>
+    <p class="hint" id="numbers-hint"></p>
+  </section>
+
+  <section class="guidance" id="guidance">
+    <h2>Handling guidance</h2>
+    <p class="guidance-lede">
+      Drawn from published animal-control and public-health advice — CDC rabies
+      guidance, state transport carcass-handling procedures, and USDA APHIS
+      disposal guidance. They agree on the important part: assume it is
+      infected, and keep your hands off it.
+    </p>
+    <div class="guidance-grid" id="guidance-grid"></div>
+  </section>
+
+  <section class="faq">
+    <h2>Common questions</h2>
+    <details>
+      <summary>Can I just move it myself?</summary>
+      <p>
+        On public land, don’t. Beyond the disease risk, an uncollected report
+        means the agency never learns that spot is a wildlife crossing or a
+        rodent problem. On your own property you usually can, but call first —
+        many places require specific bagging, and a rabies vector species may
+        need to be kept for testing.
+      </p>
+    </details>
+    <details>
+      <summary>Why do they ask so many questions?</summary>
+      <p>
+        Species and count feed disease surveillance. Location decides which
+        crew is dispatched and whether they need traffic control. Answering
+        properly the first time is usually the difference between a same-day
+        pickup and a repeat call.
+      </p>
+    </details>
+    <details>
+      <summary>Nobody has come. What now?</summary>
+      <p>
+        Call back with your original reference number. If it has been more than
+        a few days on a public road, escalate to your council member or the
+        department’s supervisor line — persistent reports are how these get
+        prioritised.
+      </p>
+    </details>
+    <details>
+      <summary>Where do these phone numbers come from?</summary>
+      <p>
+        They were compiled from official government and agency sources, and
+        every region links to the page it came from so you can check it. They
+        are a starting point, not gospel: agencies reorganise and numbers
+        change. If one is wrong, the emergency number and your local municipal
+        line will always get you to someone who can route the call.
+      </p>
+    </details>
+    <details>
+      <summary>My country is not listed.</summary>
+      <p>
+        The identification and the safety guidance hold anywhere — those are
+        biology and public health, not jurisdiction. The phone routing is
+        specific to the United States, Canada, the United Kingdom and
+        Australia so far. Elsewhere, the structure still applies: local
+        council for public land, roads authority for highways, health
+        department for bats and disease. Save your own numbers above.
+      </p>
+    </details>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p>
+    Guidance only — it is not veterinary or public health advice, and local
+    rules always win. Illustrations are drawn to show field marks, not to be
+    photographs. When you are unsure, describe what you see and let the phone
+    line decide.
+  </p>
+</footer>
+
+<dialog id="sheet" aria-labelledby="sheet-title">
+  <div class="sheet-inner" id="sheet-inner"></div>
+</dialog>
+
+<script src="assets/art.js"></script>
+<script src="assets/animals.js"></script>
+<script src="assets/jurisdictions.js"></script>
+<script src="assets/safety.js"></script>
+<script src="assets/routing.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
