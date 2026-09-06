@@ -5,7 +5,7 @@ Identify it from illustrated field marks, say where it is lying, and the page
 names the agency that handles it and what they will ask you on the call.
 
 Covers the United States (50 states + DC), Canada, the United Kingdom and
-Australia — 76 regions and 89 phone numbers.
+Australia — 76 regions and 95 phone numbers.
 
 Open `index.html` in a browser. There is no build step, no dependencies, and
 no network calls — it works offline and from a `file://` URL.

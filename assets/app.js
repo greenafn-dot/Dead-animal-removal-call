@@ -45,6 +45,11 @@ function resolveLine(line) {
 }
 
 const telHref = (n) => 'tel:' + String(n).replace(/[^0-9+*#]/g, '');
+
+/* The saved-number fields are the only text a user contributes, and they are
+   rendered into innerHTML. Escaping keeps a pasted angle bracket inert. */
+const escHTML = (v) => String(v).replace(/[&<>"']/g, (c) =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const country = () => JURISDICTIONS[state.country];
 
 function emergencyNumber() { return country().emergency.phone; }
@@ -129,12 +134,12 @@ function renderGuidance() {
 
 function contactHTML(contact, primary) {
   if (!contact) return '';
-  const label = contact.phone ? `Call ${contact.phone}` : 'Open the official page';
+  const label = contact.phone ? `Call ${escHTML(contact.phone)}` : 'Open the official page';
   const href = contact.phone ? telHref(contact.phone) : (contact.web || '#');
   const attrs = contact.phone ? '' : ' target="_blank" rel="noopener"';
   if (!primary) {
     return `<li><strong>${contact.name}</strong>
-      ${contact.phone ? `<a href="${href}">${contact.phone}</a>` : `<a href="${href}"${attrs}>official page</a>`}
+      ${contact.phone ? `<a href="${href}">${escHTML(contact.phone)}</a>` : `<a href="${href}"${attrs}>official page</a>`}
       ${contact.note ? `<em>${contact.note}</em>` : ''}</li>`;
   }
   return `<h4>${contact.name}</h4>
@@ -146,7 +151,9 @@ function contactHTML(contact, primary) {
 function sheetHTML(a) {
   const route = routeFor(a, state.location);
   const primary = resolveLine(route.line);
-  const secondary = (route.also || []).map(resolveLine).filter(Boolean);
+  const same = (a, b) => a && b && (a.phone || a.web) === (b.phone || b.web) && a.name === b.name;
+  const secondary = (route.also || []).map(resolveLine)
+    .filter((c, i, arr) => c && !same(c, primary) && arr.findIndex((o) => same(o, c)) === i);
   const region = getRegion(state.country, state.region);
   const cautions = cautionsFor(a, state.country);
   const emergency = emergencyNumber();

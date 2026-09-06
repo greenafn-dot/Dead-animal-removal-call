@@ -1214,7 +1214,7 @@ const JURISDICTIONS = {
       { code: 'RI', name: 'Rhode Island', wildlife: { name: 'RI DEM Fish & Wildlife', phone: '401-789-0281' }, url: 'https://dem.ri.gov' },
       { code: 'SC', name: 'South Carolina', wildlife: { name: 'South Carolina DNR', phone: '803-734-3886' }, url: 'https://www.dnr.sc.gov' },
       { code: 'SD', name: 'South Dakota', wildlife: { name: 'SD Game, Fish & Parks', phone: '605-223-7660' }, url: 'https://gfp.sd.gov' },
-      { code: 'TN', name: 'Tennessee', wildlife: { name: 'Tennessee Wildlife Resources Agency', phone: '615-781-6500' }, url: 'https://www.tn.gov/twra' },
+      { code: 'TN', name: 'Tennessee', wildlife: { name: 'Tennessee Wildlife Resources Agency', phone: '615-781-6622', note: 'Toll free: 1-800-624-7406.' }, url: 'https://www.tn.gov/twra' },
       { code: 'TX', name: 'Texas', wildlife: { name: 'Texas Parks & Wildlife', phone: '800-792-1112' }, highway: { name: 'TxDOT', phone: '800-558-9368', note: 'Texas retired its 511 phone line. TxDOT covers state highways only, not city or county roads.' }, url: 'https://tpwd.texas.gov' },
       { code: 'UT', name: 'Utah', wildlife: { name: 'Utah Division of Wildlife Resources', phone: '801-538-4700' }, url: 'https://wildlife.utah.gov' },
       { code: 'VT', name: 'Vermont', wildlife: { name: 'Vermont Fish & Wildlife', phone: '802-828-1000' }, url: 'https://vtfishandwildlife.com' },
@@ -1285,25 +1285,25 @@ const JURISDICTIONS = {
     regionLabel: 'State or territory',
     emergency: { name: 'Emergency services', phone: '000' },
     lines: {
-      city: { name: 'Your local council', phone: null, note: 'Councils collect dead animals from council roads and public land.' },
-      pet: { name: 'Your local council', phone: null },
+      city: { name: 'Your local council', phone: null, web: 'https://www.directory.gov.au/', note: 'Councils collect dead animals from council roads and public land. The Australian Government Directory lists every council.' },
+      pet: { name: 'Your local council', phone: null, web: 'https://www.directory.gov.au/', note: 'Councils handle stray and owned animals, including microchip scanning.' },
       health: { name: 'Emergency Animal Disease Hotline', phone: '1800 675 888' },
       bat: { name: 'Wildlife Rescue Australia', phone: '1300 596 457', note: 'Australian bats can carry Australian bat lyssavirus. Only vaccinated, trained handlers may touch a bat. If anyone has been bitten or scratched, wash the wound and seek medical advice immediately — treatment is time-critical.' },
-      highway: { name: 'Your state road authority', phone: null, note: 'State-classified roads belong to the state road authority; everything else is the council’s.' }
+      highway: { name: 'Your state road authority', phone: null, web: 'https://www.directory.gov.au/', note: 'State-classified roads belong to the state road authority; everything else is the council’s.' }
     },
     national: [
       { name: 'Emergency Animal Disease Hotline', phone: '1800 675 888', note: 'National, 24/7. Use for sick or dead wildlife that may carry disease, including suspected H5 bird flu.' },
       { name: 'Wildlife Rescue Australia', phone: '1300 596 457', note: '24-hour call centre that finds a rescuer near you.' }
     ],
     regions: [
-      { code: 'NSW', name: 'New South Wales', wildlife: { name: 'WIRES', phone: '1300 094 737', note: '24/7 rescue advice.' }, highway: { name: 'Transport for NSW', phone: '131 700', note: 'For state-classified roads.' }, url: 'https://www.wires.org.au' },
-      { code: 'VIC', name: 'Victoria', wildlife: { name: 'Wildlife Victoria', phone: '03 8400 7300', note: '24/7.' }, highway: { name: 'VicRoads', phone: '13 11 71' }, url: 'https://wildlifevictoria.org.au' },
-      { code: 'QLD', name: 'Queensland', wildlife: { name: 'Queensland Parks and Wildlife Service', phone: '1300 130 372', note: 'RSPCA Queensland for injured animals: 1300 264 625.' }, url: 'https://www.qld.gov.au/environment/plants-animals/reporting' },
-      { code: 'WA', name: 'Western Australia', wildlife: { name: 'Wildcare Helpline', phone: '08 9474 9055' }, highway: { name: 'Main Roads WA', phone: '138 138' }, url: 'https://www.mainroads.wa.gov.au' },
-      { code: 'SA', name: 'South Australia', wildlife: { name: 'Fauna Rescue South Australia', phone: '08 8289 0896' }, url: 'https://faunarescue.org.au' },
-      { code: 'TAS', name: 'Tasmania', wildlife: { name: 'Wildlife Management Branch', phone: '1300 827 727', note: 'Bonorong Wildlife Rescue: 0447 264 625.' }, url: 'https://nre.tas.gov.au' },
-      { code: 'ACT', name: 'Australian Capital Territory', wildlife: { name: 'RSPCA ACT', phone: '02 6287 8100', note: 'ACT Wildlife: 0432 300 033.' }, url: 'https://rspca-act.org.au' },
-      { code: 'NT', name: 'Northern Territory', url: 'https://nt.gov.au' }
+      { code: 'NSW', name: 'New South Wales', wildlife: { name: 'WIRES', phone: '1300 094 737', note: '24/7 rescue advice.' }, highway: { name: 'Transport for NSW', phone: '131 700', note: 'For state-classified roads.' }, city: { name: 'Find your local council (NSW OLG)', phone: null, web: 'https://www.olg.nsw.gov.au/public/find-your-local-council' }, url: 'https://www.wires.org.au' },
+      { code: 'VIC', name: 'Victoria', wildlife: { name: 'Wildlife Victoria', phone: '03 8400 7300', note: '24/7.' }, highway: { name: 'VicRoads', phone: '13 11 71' }, city: { name: 'Know Your Council (Victoria)', phone: null, web: 'https://www.vic.gov.au/know-your-council' }, url: 'https://wildlifevictoria.org.au' },
+      { code: 'QLD', name: 'Queensland', wildlife: { name: 'Queensland Parks and Wildlife Service', phone: '1300 130 372', note: 'RSPCA Queensland for injured animals: 1300 264 625.' }, highway: { name: 'QLDTraffic', phone: '13 19 40', note: '24/7, for hazards on major Queensland roads.' }, city: { name: 'Queensland Government (13 QGOV)', phone: '13 74 68', note: 'Routes you to your council. Weekdays only.' }, url: 'https://www.qld.gov.au/environment/plants-animals/reporting' },
+      { code: 'WA', name: 'Western Australia', wildlife: { name: 'Wildcare Helpline', phone: '08 9474 9055' }, highway: { name: 'Main Roads WA', phone: '138 138' }, city: { name: 'Local Government Directory (WALGA)', phone: null, web: 'https://walga.asn.au/your-local-government/local-government-directory' }, url: 'https://www.mainroads.wa.gov.au' },
+      { code: 'SA', name: 'South Australia', wildlife: { name: 'Fauna Rescue South Australia', phone: '08 8289 0896' }, highway: { name: 'Department for Infrastructure and Transport', phone: '1800 018 313', note: 'For road hazards and incidents.' }, city: { name: 'Find your council (LGA South Australia)', phone: null, web: 'https://www.lga.sa.gov.au/sa-councils/councils-listing' }, url: 'https://faunarescue.org.au' },
+      { code: 'TAS', name: 'Tasmania', wildlife: { name: 'Wildlife Management Branch', phone: '1300 827 727', note: 'Bonorong Wildlife Rescue: 0447 264 625.' }, highway: { name: 'Transport Services Tasmania', phone: '1300 139 933', note: 'Select menu item 2 to report a road hazard.' }, url: 'https://nre.tas.gov.au' },
+      { code: 'ACT', name: 'Australian Capital Territory', wildlife: { name: 'RSPCA ACT', phone: '02 6287 8100', note: 'ACT Wildlife: 0432 300 033.' }, highway: { name: 'Access Canberra', phone: '13 22 81' }, city: { name: 'Access Canberra', phone: '13 22 81', note: 'The ACT has no separate councils — Access Canberra is the service.' }, url: 'https://rspca-act.org.au' },
+      { code: 'NT', name: 'Northern Territory', highway: { name: 'NT road report', phone: '1800 246 199', note: 'Freecall, for road conditions and urgent road faults.' }, url: 'https://nt.gov.au' }
     ]
   }
 };
@@ -1323,7 +1323,10 @@ function contactFor(countryId, regionCode, line) {
   if (!country) return null;
   const region = getRegion(countryId, regionCode);
   if (region && region[line]) return { ...region[line], scope: 'region' };
-  if (line === 'wildlife') return null;              // no national wildlife default
+  /* No country has a single national wildlife line, so a region without one
+     falls back to the municipal line: parks and public land are managed
+     locally almost everywhere, and a usable number beats a dead end. */
+  if (line === 'wildlife') return country.lines.city ? { ...country.lines.city, scope: 'country' } : null;
   const base = country.lines[line] || (line === 'bat' ? country.lines.health : null);
   return base ? { ...base, scope: 'country' } : null;
 }
@@ -1642,6 +1645,11 @@ function resolveLine(line) {
 }
 
 const telHref = (n) => 'tel:' + String(n).replace(/[^0-9+*#]/g, '');
+
+/* The saved-number fields are the only text a user contributes, and they are
+   rendered into innerHTML. Escaping keeps a pasted angle bracket inert. */
+const escHTML = (v) => String(v).replace(/[&<>"']/g, (c) =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const country = () => JURISDICTIONS[state.country];
 
 function emergencyNumber() { return country().emergency.phone; }
@@ -1726,12 +1734,12 @@ function renderGuidance() {
 
 function contactHTML(contact, primary) {
   if (!contact) return '';
-  const label = contact.phone ? `Call ${contact.phone}` : 'Open the official page';
+  const label = contact.phone ? `Call ${escHTML(contact.phone)}` : 'Open the official page';
   const href = contact.phone ? telHref(contact.phone) : (contact.web || '#');
   const attrs = contact.phone ? '' : ' target="_blank" rel="noopener"';
   if (!primary) {
     return `<li><strong>${contact.name}</strong>
-      ${contact.phone ? `<a href="${href}">${contact.phone}</a>` : `<a href="${href}"${attrs}>official page</a>`}
+      ${contact.phone ? `<a href="${href}">${escHTML(contact.phone)}</a>` : `<a href="${href}"${attrs}>official page</a>`}
       ${contact.note ? `<em>${contact.note}</em>` : ''}</li>`;
   }
   return `<h4>${contact.name}</h4>
@@ -1743,7 +1751,9 @@ function contactHTML(contact, primary) {
 function sheetHTML(a) {
   const route = routeFor(a, state.location);
   const primary = resolveLine(route.line);
-  const secondary = (route.also || []).map(resolveLine).filter(Boolean);
+  const same = (a, b) => a && b && (a.phone || a.web) === (b.phone || b.web) && a.name === b.name;
+  const secondary = (route.also || []).map(resolveLine)
+    .filter((c, i, arr) => c && !same(c, primary) && arr.findIndex((o) => same(o, c)) === i);
   const region = getRegion(state.country, state.region);
   const cautions = cautionsFor(a, state.country);
   const emergency = emergencyNumber();
