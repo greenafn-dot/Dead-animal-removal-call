@@ -6,6 +6,14 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
 const state = { q: '', size: 'all', openId: null, location: 'street', country: 'us', region: null };
 
+/* Single-file builds set this to false: there is no images/ directory to
+   fall back from, so the photo overlay is omitted rather than 404ing. */
+const PHOTOS = window.DAR_PHOTOS !== false;
+const photoTag = (id, lazy) => PHOTOS
+  ? `<img class="photo" src="images/${id}.jpg" alt=""${lazy ? ' loading="lazy"' : ''}
+       onerror="this.remove()" onload="this.classList.add('is-on')">`
+  : '';
+
 /* ---------- persistence ---------- */
 
 const NUM_KEY = 'dar.numbers.v1';
@@ -76,8 +84,7 @@ function cardHTML(a) {
   return `<button class="card" data-id="${a.id}" aria-label="${a.name} — open reporting steps">
     <span class="art">
       ${renderAnimal(a)}
-      <img class="photo" src="images/${a.id}.jpg" alt="" loading="lazy"
-           onerror="this.remove()" onload="this.classList.add('is-on')">
+      ${photoTag(a.id, true)}
     </span>
     <span class="card-body">
       <span class="card-head">
@@ -150,7 +157,7 @@ function sheetHTML(a) {
   <div class="sheet-top">
     <span class="art art-lg">
       ${renderAnimal(a)}
-      <img class="photo" src="images/${a.id}.jpg" alt="" onerror="this.remove()" onload="this.classList.add('is-on')">
+      ${photoTag(a.id, false)}
     </span>
     <div>
       <h2 id="sheet-title">${a.name}</h2>
