@@ -22,12 +22,25 @@
     <div class="safety">
       <strong>Before anything else:</strong> do not touch it, and keep pets and
       children away. If it is blocking traffic, someone has been bitten, or the
-      animal is still moving, stop reading and call <a href="tel:911">911</a>.
+      animal is still moving, stop reading and call
+      <a href="tel:911" id="emergency-link">911</a>.
     </div>
   </div>
 </header>
 
 <main class="wrap">
+
+  <section class="juris" aria-label="Where are you?">
+    <div class="juris-row">
+      <label for="country">Country
+        <select id="country"></select>
+      </label>
+      <label for="region"><span id="region-label">State</span>
+        <select id="region"></select>
+      </label>
+    </div>
+    <p class="juris-note" id="juris-note"></p>
+  </section>
 
   <section class="controls" aria-label="Find your animal">
     <div class="search">
@@ -55,8 +68,9 @@
   <section class="numbers" id="numbers">
     <h2>Save your local numbers</h2>
     <p>
-      Every city routes these calls differently. Enter yours once and this page
-      will use them everywhere below. They are stored only in this browser.
+      The numbers below are filled in from your country and region, but the
+      municipal line is always local to you. Anything you enter here overrides
+      what this page suggests, everywhere. Stored in this browser only.
     </p>
     <div class="numgrid">
       <label>City / 311 line
@@ -68,15 +82,25 @@
       <label>Public health
         <input type="tel" data-num="health" placeholder="Not set">
       </label>
-      <label>State highway (DOT)
+      <label>Roads authority
         <input type="tel" data-num="highway" placeholder="Not set">
       </label>
+      <label>Wildlife agency
+        <input type="tel" data-num="wildlife" placeholder="Not set">
+      </label>
     </div>
-    <p class="hint">
-      Not sure what yours are? In most of the United States, dialling
-      <a href="tel:311">311</a> reaches the city line that can route you to any
-      of the others.
+    <p class="hint" id="numbers-hint"></p>
+  </section>
+
+  <section class="guidance" id="guidance">
+    <h2>Handling guidance</h2>
+    <p class="guidance-lede">
+      Drawn from published animal-control and public-health advice — CDC rabies
+      guidance, state transport carcass-handling procedures, and USDA APHIS
+      disposal guidance. They agree on the important part: assume it is
+      infected, and keep your hands off it.
     </p>
+    <div class="guidance-grid" id="guidance-grid"></div>
   </section>
 
   <section class="faq">
@@ -110,12 +134,24 @@
       </p>
     </details>
     <details>
-      <summary>I am not in the United States.</summary>
+      <summary>Where do these phone numbers come from?</summary>
       <p>
-        The identification and the safety rules hold anywhere. The phone
-        routing does not: 311 is a North American convention. Look up your
-        local council’s environmental health or street cleansing line and save
-        it in the box above.
+        They were compiled from official government and agency sources, and
+        every region links to the page it came from so you can check it. They
+        are a starting point, not gospel: agencies reorganise and numbers
+        change. If one is wrong, the emergency number and your local municipal
+        line will always get you to someone who can route the call.
+      </p>
+    </details>
+    <details>
+      <summary>My country is not listed.</summary>
+      <p>
+        The identification and the safety guidance hold anywhere — those are
+        biology and public health, not jurisdiction. The phone routing is
+        specific to the United States, Canada, the United Kingdom and
+        Australia so far. Elsewhere, the structure still applies: local
+        council for public land, roads authority for highways, health
+        department for bats and disease. Save your own numbers above.
       </p>
     </details>
   </section>
@@ -136,6 +172,8 @@
 
 <script src="assets/art.js"></script>
 <script src="assets/animals.js"></script>
+<script src="assets/jurisdictions.js"></script>
+<script src="assets/safety.js"></script>
 <script src="assets/routing.js"></script>
 <script src="assets/app.js"></script>
 </body>

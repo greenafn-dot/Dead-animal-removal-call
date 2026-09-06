@@ -293,6 +293,7 @@ dialog::backdrop { background: rgba(16, 14, 10, .55); backdrop-filter: blur(2px)
 }
 .dial:hover { filter: brightness(1.07); }
 .dial-note { margin: .55rem 0 0; font-size: .78rem; color: var(--ink-3); }
+.dial-note a, .plan .why a { color: var(--accent); font-weight: 600; }
 
 .say { margin: 0; padding-left: 1.2rem; display: grid; gap: .4rem; color: var(--ink-2); font-size: .92rem; }
 .say li::marker { color: var(--accent); font-weight: 700; }
@@ -317,3 +318,76 @@ dialog::backdrop { background: rgba(16, 14, 10, .55); backdrop-filter: blur(2px)
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
+
+/* ---------- jurisdiction selector ---------- */
+
+.juris {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  margin-top: clamp(1.6rem, 4vw, 2.4rem);
+  box-shadow: var(--shadow);
+}
+.juris-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: .8rem; }
+.juris-row label { display: grid; gap: .3rem; font-size: .78rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-3); }
+.juris-row select {
+  font: inherit; font-size: .98rem; font-weight: 400; text-transform: none; letter-spacing: 0;
+  padding: .6rem .7rem;
+  color: var(--ink); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 9px;
+}
+.juris-row select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.juris-note { margin: .8rem 0 0; font-size: .86rem; color: var(--ink-2); }
+.juris-note a { color: var(--accent); }
+
+@media (max-width: 560px) { .juris-row { grid-template-columns: 1fr; } }
+
+/* ---------- secondary contacts ---------- */
+
+.also { list-style: none; margin: 1rem 0 0; padding: .85rem 0 0; border-top: 1px solid var(--line); display: grid; gap: .6rem; }
+.also-head { font-size: .68rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+.also li { font-size: .88rem; display: grid; gap: .1rem; }
+.also li strong { font-weight: 600; }
+.also li a { color: var(--accent); font-weight: 700; }
+.also li em { font-style: normal; color: var(--ink-3); font-size: .82rem; }
+
+.dial-emergency { background: var(--alarm); color: #fff; max-width: 260px; }
+
+/* ---------- guidance blocks ---------- */
+
+.guidance {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: clamp(1.2rem, 3vw, 1.8rem);
+  margin: 2rem 0;
+}
+.guidance h2 { margin: 0 0 .4rem; font-size: 1.25rem; letter-spacing: -.01em; }
+.guidance-lede { margin: 0 0 1.4rem; color: var(--ink-2); max-width: 68ch; }
+.guidance-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(255px, 1fr)); gap: 1.2rem; }
+
+.block h3 {
+  margin: 0 0 .6rem; font-size: .78rem; text-transform: uppercase;
+  letter-spacing: .1em; color: var(--ink-3);
+}
+.block ul { margin: 0; padding: 0; list-style: none; display: grid; gap: .5rem; }
+.block li {
+  position: relative; padding-left: 1.3rem;
+  font-size: .9rem; line-height: 1.5; color: var(--ink-2);
+}
+.block li::before {
+  content: ""; position: absolute; left: 0; top: .55em;
+  width: 7px; height: 7px; border-radius: 2px; background: var(--accent);
+}
+
+/* the bat protocol and the do-not-touch list are the ones that matter most */
+.guidance-grid .block:nth-child(2) li::before,
+.guidance-grid .block:nth-child(3) li::before { background: var(--alarm); }
+
+.cautions {
+  margin-top: 1.6rem; padding-top: 1.3rem;
+  border-top: 1px solid var(--line);
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(255px, 1fr)); gap: 1.4rem;
+}
+.cautions .block:not(:first-child) li::before { background: var(--alarm); }

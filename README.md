@@ -4,6 +4,9 @@ A single-page guide for members of the public who have found a dead animal.
 Identify it from illustrated field marks, say where it is lying, and the page
 names the agency that handles it and what they will ask you on the call.
 
+Covers the United States (50 states + DC), Canada, the United Kingdom and
+Australia — 76 regions and 89 phone numbers.
+
 Open `index.html` in a browser. There is no build step, no dependencies, and
 no network calls — it works offline and from a `file://` URL.
 
@@ -25,11 +28,13 @@ it happened on; location rules handle everything else.
 
 | File | Purpose |
 | --- | --- |
-| `index.html` | Page structure, safety banner, saved-numbers form, FAQ |
+| `index.html` | Page structure, safety banner, jurisdiction selector, FAQ |
 | `assets/animals.js` | The 18 species: field marks, look-alikes, risk notes |
-| `assets/routing.js` | Which agency to call, and what to have ready |
+| `assets/jurisdictions.js` | Agency numbers for 76 regions across 4 countries |
+| `assets/routing.js` | Which *kind* of agency to call, and what to have ready |
+| `assets/safety.js` | Handling guidance and per-animal cautions |
 | `assets/art.js` | Parametric SVG illustrations |
-| `assets/app.js` | Grid, search, filters, detail sheet |
+| `assets/app.js` | Grid, search, jurisdiction resolution, detail sheet |
 | `assets/style.css` | Styling, light and dark |
 | `images/` | Drop-in photographs (see below) |
 
@@ -52,14 +57,56 @@ Missing files fall back to the illustration, so a partial set is fine. See
 
 ## Phone numbers
 
-The page ships with `311` as the default, which reaches the city line across
-most of North America. Anything more specific varies by jurisdiction, so the
-page does not guess: enter your own city, animal control, public health and
-state DOT numbers once in the *Save your local numbers* panel and they are
-used throughout. They are kept in `localStorage`, in that browser only.
+`routing.js` decides *what kind* of agency handles a case; `jurisdictions.js`
+turns that into an actual number for where the user is. Resolution runs
+most-specific-first:
 
-Outside North America the identification and safety guidance still applies,
-but the 311 convention does not — save your local numbers.
+```
+a number the user saved  →  the region's agency  →  the country default
+```
+
+So a deer on a highway resolves to PennDOT in Pennsylvania, VicRoads in
+Victoria, and Traffic Wales in Wales — while a squirrel on a city street
+falls back to the municipal line everywhere.
+
+### Sourcing
+
+Numbers were compiled from official government and agency sources in
+September 2026. **Every region carries the `url` of the page it came from**,
+surfaced in the UI, because agencies reorganise and numbers change — the
+number is a starting point and the link is the authority.
+
+Nothing is guessed. Where no statewide number could be verified, the entry
+falls back to the country default rather than inventing one; several US
+states dispatch carcass pickup from district maintenance yards and genuinely
+have no single number, and the data says so instead of pretending otherwise.
+Three states (Texas, Washington, Kentucky) have retired their 511 phone
+lines, and those entries point at the replacement service.
+
+Anything a user types into *Save your local numbers* overrides all of it, and
+is kept in `localStorage` in that browser only.
+
+## Safety guidance
+
+`safety.js` holds the warnings, drawn from published animal-control and
+public-health advice rather than written from scratch — CDC rabies guidance,
+state transport carcass-handling procedures, and USDA APHIS disposal
+guidance. They converge on one instruction: assume it is infected, and do not
+use bare hands.
+
+Three cases get their own treatment because the obvious action is the wrong
+one:
+
+- **Bats.** Never strike one — head damage makes rabies testing impossible,
+  and the test is what decides whether a person needs treatment. A bat in a
+  room where someone slept counts as a possible exposure with no visible
+  bite. The routing differs by country: a health department in the US and
+  Canada, NHS 111 in the UK, and lyssavirus-aware wildlife rescue in
+  Australia.
+- **Rabies vector species** (raccoon, skunk, fox, coyote): report rather than
+  remove, even on your own property.
+- **Marsupials in Australia**: a joey may still be alive in the pouch, so the
+  advice is to call the rescue line before touching anything.
 
 ## Adding an animal
 
@@ -80,8 +127,29 @@ Append an entry to `ANIMALS` in `assets/animals.js`:
 `report` selects the routing rule. `marks[0]` is what shows on the card, so
 lead with the most diagnostic one.
 
+## Adding a region
+
+Append to the `regions` array of a country in `assets/jurisdictions.js`:
+
+```js
+{
+  code: 'XX', name: 'Placename',
+  wildlife: { name: 'Agency', phone: '000-000-0000', note: '…' },
+  highway:  { name: 'Roads authority', phone: '…' },   // optional
+  url: 'https://official.agency.page'                  // required
+}
+```
+
+Only `code`, `name` and `url` are required — omitted lines fall back to the
+country default. Do not add a number you cannot source; the fallback is
+correct behaviour, a wrong number is not.
+
 ## Scope
 
 This is public guidance, not veterinary or public health advice, and local
 rules always take precedence. It does not dispatch anyone or file a report —
 it tells a person which number to dial and what to say.
+
+Phone numbers were correct against their official sources when compiled and
+are not automatically re-checked. Treat the linked agency page as the
+authority, and the emergency number as the thing that always works.
